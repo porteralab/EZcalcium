@@ -1,4 +1,4 @@
-function ez_multiplot(raw_traces,plots_per_page,filename,frame_length,x_units,x_tick_number,y_units,y_tick_number,roi_numbers,active_traces,baseline,threshold,stimulus)
+function ez_multiplot(raw_traces,plots_per_page,filename,frame_length,x_units,x_tick_number,y_units,y_tick_number,open_pdf,roi_numbers,active_traces,baseline,threshold,stimulus)
 %activity is a matrix of things to be plotted
 %plots_per_page is the number of plots per page (1-10, usually)
 %framerate is the frame rate in Hz for time labeling. Default is 1.
@@ -14,13 +14,13 @@ if ~ischar(filename)
     error('Error: variable "filename" must be a string!')
 end
 
-if length(filename)>=4 %adds .pdf to end of filename if not there already
-    if ~strcmp(filename(end-3:end),'.pdf')
-        filename=[filename '.pdf'];
-    end
-else
-    filename=[filename '.pdf'];
-end
+% if length(filename)>=4 %adds .pdf to end of filename if not there already
+%     if ~strcmp(filename(end-3:end),'.pdf')
+%         filename=[filename '.pdf'];
+%     end
+% else
+%     filename=[filename '.pdf'];
+% end
 
 if plots_per_page<1
     error('Error: variable "plots_per_page" must be at least 1!')
@@ -56,6 +56,21 @@ else
     x_units=[];
 end
 %================End Error Check===================
+
+%--------------Generate PDF filename-------------
+find_forward_slash=strfind(filename,filesep); %finds forward slash in filenames
+
+if isempty(find_forward_slash) %determines whether or not a directory was listed as part of the filename
+    nameString=filename(1:end-4);
+    dirString=pwd; %use current directory if no valid directory listed
+    filename=[pwd filesep filename];
+else
+    nameString=[filename(find_forward_slash(end)+1:end-4)];
+    %nameString=[filename(find_forward_slash(end)+1:end-4) '_' filename];
+    dirString=filename(1:find_forward_slash(end));
+end
+
+
 
 cellnumber=size(raw_traces,2);
 figcount=1; %needed for pdf
@@ -125,27 +140,24 @@ for page = 1:ceil (cellnumber/plots_per_page)
         end
     end
     set(gcf,'Color',[1,1,1]);
+    
+%     print(gcf,[filename '_' num2str(page)],'-dpdf',...
+%         'PaperSize',[8.5 11],'PaperUnits','inches')
+        fig=figHandles(page);
+        set(fig,'Position',[680 558 900 1200])
+        print(fig,[filename '_' num2str(page)],'-bestfit','-dpdf')
+        
+        if open_pdf==1          
+            winopen([filename '_' num2str(page) '.pdf'])
+        end
 end
 
 
-%--------------Generate PDF-------------
-find_forward_slash=strfind(filename,filesep); %finds forward slash in filenames
-
-if isempty(find_forward_slash) %determines whether or not a directory was listed as part of the filename
-    nameString=filename(1:end-4);
-    dirString=pwd; %use current directory if no valid directory listed
-    filename=[pwd filesep filename];
-else
-    nameString=[filename(find_forward_slash(end)+1:end-4)];
-    %nameString=[filename(find_forward_slash(end)+1:end-4) '_' filename];
-    dirString=filename(1:find_forward_slash(end));
-end
 
 %ez_multiPagePDF(figHandles, nameString, dirString)
 
-print(figHandles,nameString,'-dpdf')
-
-
+% print(figHandles,nameString,'-dpdf')
 close(figHandles)
-disp(['PDF created: ' filename]);
-open(filename);
+
+%disp(['PDF created: ' filename]);
+%open(filename);

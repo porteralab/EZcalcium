@@ -330,10 +330,10 @@ end
 open_pdf=get(handles.open_pdf,'Value'); %Check if "Open PDFs" has been selected in the GUI, to be passed to plotting functions
 if get(handles.check_pdf,'Value')==1 %Check if "Save PDFs" has been selected in the GUI
     dF_filename=[vidfile_name '_dF']; %dF/F plots name
-    ez_multiplot2(C_df',10,dF_filename,1,'Frame',1,'dF/F',1,open_pdf); %Generate and save dF/F plots
+    ez_multiplot(C_df',10,dF_filename,1,'Frame',1,'dF/F',1,open_pdf); %Generate and save dF/F plots
     if p>0 %Only export rate if using dynamics
         spike_filename=[vidfile_name '_rate']; %Firing rate plots name
-        ez_multiplot2(S_or',10,spike_filename,1,'Frame',1,'Rate',1,open_pdf); %Generate and save firing rate plots
+        ez_multiplot(S_or',10,spike_filename,1,'Frame',1,'Rate',1,open_pdf); %Generate and save firing rate plots
     end
 end
 %===========================End plotting================================
