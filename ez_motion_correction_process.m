@@ -464,6 +464,8 @@ for iteration=1:iterations
         else %Regular RAM versions of the motion correction
         %=========Checks for compression=================
         vid_info=imfinfo(fullvidfile); %Checks video file information
+        vid_height=vid_info(1).Height; %Sets height
+        vid_width=vid_info(1).Width; %Sets width
         if strcmp(vid_info(1).Compression,'Uncompressed') %Loads uncompressed videos
             image_data=loadtiff(fullvidfile);
             num_frames=size(image_data,3);
