@@ -80,8 +80,8 @@ function help_button_Callback(hObject, eventdata, handles)
 % hObject    handle to help_button (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-system('Calcium_Analysis_Documentation.pdf');
-%Load documentation
+filepath = fileparts([mfilename('fullpath') '.m']);
+system([filepath '/HELP.pdf']); %Load documentation
 
 % --- Executes on button press in roi_refine.
 function roi_refine_Callback(hObject, eventdata, handles)
