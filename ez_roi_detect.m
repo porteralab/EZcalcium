@@ -22,7 +22,7 @@ function varargout = ez_roi_detect(varargin)
 
 % Edit the above text to modify the response to help ez_roi_detect
 
-% Last Modified by GUIDE v2.5 08-Jul-2019 15:03:58
+% Last Modified by GUIDE v2.5 26-Jul-2019 14:02:23
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -1185,3 +1185,171 @@ function open_pdf_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of open_pdf
+
+
+% --- Executes on button press in pushbutton9.
+function pushbutton9_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton9 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+msgbox("""Initialization"" methods provide an initial estimate of spatial and temporal components. ""Greedy"" is recommended for videos of neuronal somata. It relies heavily on spatial components and generally runs much faster; ""Sparse NMF"" is recommended for more complex structures, such as dendrites, dendritic spines, or axons.","Help",'replace')
+
+
+% --- Executes on button press in pushbutton10.
+function pushbutton10_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton10 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+msgbox("""Search Method"" determines the spatial components (location) of ROIs. ""Ellipse"" assumes components have an ellipsoid shape, such as for neuronal somata; ""Dilate"" can be used with either ellipsoid or non-ellipsoid ROIs, but generally takes longer.","Help",'replace')
+
+
+% --- Executes on button press in pushbutton11.
+function pushbutton11_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton11 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+msgbox("""Deconvolution"" determines the method for translating activity-induced changes in the fluorescence intensity of the indicator into approximate firing rates.  If you are imaging an organism that does not produce action potentials, set this to the fastest setting available. Noise-constrained deconvolution methods include ""SPGL1 - Constrained foopsi"" and ""CVX - Constrained foopsi."" Both are also available through https://github.com/epnev/constrained-foopsi. ""SPGL1 - Constrained foopsi"" works well even with medium-to-low signal-to-noise traces. ""CVX - Constrained foopsi"" requires CVX and is not available in the standalone version of EZcalcium. It is typically the fastest method of deconvolution when working with high signal-to-noise traces.  It is available at http://cvxr.com/cvx/doc/install.html. ""MCMC"" is a fully-Bayesian deconvolution method that is computationally-intensive and is recommended when higher precision is required. ""MCEM"" alternates between the listed ""Constrained foopsi"" deconvolution and ""MCMC"" to update time constants. It is significantly faster than ""MCMC"" alone and is generally recommended when deconvolving calcium signals from cell somata.","Help",'replace')
+
+
+% --- Executes on button press in pushbutton12.
+function pushbutton12_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton12 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+msgbox("""Autoregression"" is used to estimate the calcium indicator kinetics. ""Rise and Decay"" estimates both the rise and decay kinetics of the calcium indicator and incorporates them when extracting fluorescence traces and deconvolving the signal.  Due to the difficulty in detecting fast rise times, using ""Rise and Decay"" may result in overfit data if the imaging was performed at low temporal resolution (<16 Hz).  ""Decay"" estimates just the decay kinetics of the calcium indicator and is the recommended setting for lower temporal resolution imaging.  ""No Dynamics"" will produce only raw traces and will not perform deconvolution.","Help",'replace')
+
+
+% --- Executes on button press in pushbutton13.
+function pushbutton13_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton13 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+msgbox("Choose the number of frames to analyze. Checking the box ""Use All Frames"" will automatically detect and use all the frames in any given video and ignore the inputted values.","Help",'replace')
+
+
+% --- Executes on button press in pushbutton14.
+function pushbutton14_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton14 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+msgbox("""Estimated Components"" is the estimated maximum number of components in the field of view. Multiple components may make up a single ROI, so set this value based on your method of ROI detection.  This must be set to a minimum value of 1.  If you want to perform fully manual ROI selection, set ""Estimated Components"" to 1 and check the box to enable ""Manual Initial Refinement"".  When the manual refinement step starts, delete the initial automatically detected ROI.  If no components are determined to be similar enough to be merged, the most likely result is that the number set for ""Estimated Components"" is the number that will be initially detected.","Help",'replace')
+
+
+% --- Executes on button press in pushbutton15.
+function pushbutton15_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton15 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+msgbox("""Component Width"" is the estimated width, in pixels, of your components.  If you have a simple ROI shape, such as a cell soma, you can use the width of the entire ROI as your component width.","Help",'replace')
+
+
+% --- Executes on button press in pushbutton16.
+function pushbutton16_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton16 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+msgbox("""Merge Threshold"" is the threshold at which two components will be merged into a single ROI. Components that share a correlation coefficient above ""Merge Threshold"" will be merged into a single ROI.","Help",'replace')
+
+
+% --- Executes on button press in pushbutton17.
+function pushbutton17_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton17 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+msgbox("""Fudge Factor"" is useful for estimating time constants of very noisy data, in particular those with low temporal resolution (slow frame rate). The value indicates a multiplicative bias correction for time constants of each ROI during deconvolution.  ""Fudge Factor"" should generally be set to 0.95-1. A value of 1 indicates that no bias correction will be performed.","Help",'replace')
+
+
+% --- Executes on button press in pushbutton18.
+function pushbutton18_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton18 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+msgbox("""Spatial Downsampling"" will downsample the spatial resolution of a video by a factor set here.  The value entered should be a positive integer. A value of 1 means that no downsampling will be performed.  This is useful for rapidly troubleshooting the settings on videos with a very large field of view.","Help",'replace')
+
+
+% --- Executes on button press in pushbutton19.
+function pushbutton19_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton19 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+msgbox("""Temporal Downsampling"" is similar to Spatial Downsampling, except it downsamples the temporal resolution.  This is useful for optimizing settings on very long, high frame rate (>15 Hz) videos.","Help",'replace')
+
+
+% --- Executes on button press in pushbutton20.
+function pushbutton20_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton20 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+msgbox("""Temporal Iterations"" is the number of iterations that will be performed to calculate the temporal components of ROIs. This should be set to at least 2 when not rapidly testing other parameters.","Help",'replace')
+
+
+% --- Executes on button press in pushbutton21.
+function pushbutton21_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton21 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+msgbox("""Manual Initial Refinement"" adds an additional step following initialization to manually add or remove ROIs.  ROIs can also be removed in the step ""ROI Refinement.""  To fully automate the process, it is recommended to optimize your settings to slightly overestimate the number of ROIs and then remove erroneous ROIs later. This step is included as an option for particularly troublesome files and for those who prefer semi-automated ROI selection.  Initial spatial components will be displayed in a new figure.  The center of estimates in ROIs is highlighted with a magenta circle, surrounded by the boundary of the ROI. To manually add an ROI, left click with the mouse where you want to add the center of an ROI.  The boundary of the ROI will be automatically computed and drawn. To manually remove an ROI, right click on any ROI center. Hit the enter key to continue ROI detection.","Help",'replace')
+
+
+% --- Executes on button press in pushbutton22.
+function pushbutton22_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton22 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+msgbox("""Export to .csv"" exports the data to a .csv file that can be opened in programs outside of MATLAB.","Help",'replace')
+
+
+% --- Executes on button press in pushbutton23.
+function pushbutton23_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton23 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+msgbox("""Display Components"" shows extracted raw fluorescence data, the inferred trace generated, and the ROI shape and location.","Help",'replace')
+
+
+% --- Executes on button press in pushbutton24.
+function pushbutton24_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton24 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+msgbox("""Display ROI Centers"" generates a map showing the centers of all ROIs following initialization.","Help",'replace')
+
+
+% --- Executes on button press in pushbutton25.
+function pushbutton25_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton25 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+msgbox("""Display ROI Map"" generates a map with all the ROI boundaries, each labeled with the same ROI number as was used in the data.","Help",'replace')
+
+
+% --- Executes on button press in pushbutton26.
+function pushbutton26_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton26 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+msgbox("""Display Merging Example"" shows an example of how several components were merged to form a single ROI.  This is useful when optimizing ""Merge Threshold"" and ""Component Width.""","Help",'replace')
+
+
+% --- Executes on button press in pushbutton27.
+function pushbutton27_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton27 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+msgbox("""Save PDFs"" saves .pdf files displaying traces of the analyzed data, with each PDF showing 10 ROIs.","Help",'replace')
+
+
+% --- Executes on button press in pushbutton28.
+function pushbutton28_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton28 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+msgbox("""Open PDFs"" automatically opens the .pdf files generated by ""Save PDFs"" upon completion of the ROI detection.","Help",'replace')
+
+
+% --- Executes on button press in pushbutton29.
+function pushbutton29_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton29 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+msgbox("The ""Save Settings"" button allows the user to save all settings under a specific name of your choosing. Settings are saved as .mat files. The ""Load Settings"" button allows one to load all saved settings in future sessions.","Help",'replace')
