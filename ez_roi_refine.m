@@ -68,7 +68,7 @@ autosave_file='autosave_ez_refine.mat'; %Name autosave file
 %Check if autoload exists
 if exist('autosave_ez_refine.mat','file')==2 %Checks for autosave file
     load('autosave_ez_refine.mat'); %loads file into workspace
-    write_refine_roi(handles,refine_roi,2) %Load settings into GUI
+    write_refine_roi(handles,refine_roi) %Load settings into GUI
 else
     ez_autoload_fail(autosave_file) %Runs dialog box to find and move an autoload file
     if exist('autosave_ez_refine.mat','file')==2 %If no autoload selected, create default
@@ -79,7 +79,7 @@ else
             ez_warning_small(warning_text);
             return
         else
-            write_refine_roi(handles,refine_roi,2) %Load settings into GUI
+            write_refine_roi(handles,refine_roi) %Load settings into GUI
         end
     end
 end
@@ -110,7 +110,7 @@ function run_Callback(hObject, eventdata, handles)
 refine_roi=parse_refine_roi(handles); %read GUI
 
 %Autosave
-save('autosave_ez_refine_roi.mat','refine_roi');
+save('autosave_ez_refine.mat','refine_roi');
 
 
 %=========Re-calculate data from load button===================
