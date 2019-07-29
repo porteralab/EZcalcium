@@ -478,7 +478,8 @@ function help_button_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 %Open documentation file in the default program
-system('Calcium_Analysis_Documentation.pdf');
+filepath = fileparts([mfilename('fullpath') '.m']);
+system([filepath '/HELP.pdf']); %Load documentation
 
 
 function edit4_Callback(hObject, eventdata, handles)

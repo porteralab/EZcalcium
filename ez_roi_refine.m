@@ -22,7 +22,7 @@ function varargout = ez_roi_refine(varargin)
 
 % Edit the above text to modify the response to help ez_roi_refine
 
-% Last Modified by GUIDE v2.5 08-Jul-2019 15:06:36
+% Last Modified by GUIDE v2.5 29-Jul-2019 11:14:35
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -271,7 +271,8 @@ function help_Callback(hObject, eventdata, handles)
 % hObject    handle to help (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-system('Calcium_Analysis_Documentation.pdf');
+filepath = fileparts([mfilename('fullpath') '.m']);
+system([filepath '/HELP.pdf']); %Load documentation
 
 function status_bar_Callback(hObject, eventdata, handles)
 % hObject    handle to status_bar (see GCBO)
@@ -2034,3 +2035,123 @@ function ROI_saturated_frames_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+
+% --- Executes on button press in pushbutton28.
+function pushbutton28_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton28 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+msgbox("""dF/F Activity"" is used to only include ROIs that surpass a chosen activity threshold for a given number of consecutive frames. This threshold can be set in the ""Value"" box in units of dF/F, and the chosen number of consecutive frames can be set in the ""Frames"" box.","Help",'replace')
+
+
+% --- Executes on button press in pushbutton29.
+function pushbutton29_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton29 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+msgbox("""dF/F Baseline Stability"" is used to check if an ROI has a stable baseline throughout the imaging session by comparing the baseline at the beginning of recording with the baseline at the end.","Help",'replace')
+
+
+% --- Executes on button press in pushbutton30.
+function pushbutton30_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton30 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+msgbox("""Roundness"" measures how similar an ROI is to a circle. This is useful when looking exclusively for neuron somata or other round ROIs.","Help",'replace')
+
+
+% --- Executes on button press in pushbutton31.
+function pushbutton31_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton31 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+msgbox("""Oblongness"" is a measure of the ellipsoid shape of an ROI. It is calculated by dividing the length of the major axis of the ellipse by the length of the minor axis. This is useful in excluding overly oblong ROIs that are not likely to be neurons.","Help",'replace')
+
+
+% --- Executes on button press in pushbutton32.
+function pushbutton32_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton32 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+msgbox("""Borderline"" can be set to allow an ROI to have criteria slightly outside of the desired range. If a criterion is outside the desired range but within the allotted borderline percentage, it will not automatically exlude the ROI. Instead, the ROI will be labeled with a ""B,"" the criterion will turn yellow, and if the number of criteria that are considered ""Borderline"" is less than or equal to the number in ""Borderline Allowance,"" the ROI will be included. The parameter can also be input in terms of Standard Deviation or Mean Average Deviation.","Help",'replace')
+
+
+% --- Executes on button press in pushbutton33.
+function pushbutton33_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton33 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+msgbox("""Borderline Allowance"" is the number of criteria per ROI that are allowed to deviate from the set exclusion criteria as long as they are within the borderline percentage. In other words, if an ROI has a number of criteria within the borderline range equal to or less than the ""Borderline Allowance,"" the ROI will be included.","Help",'replace')
+
+
+% --- Executes on button press in pushbutton34.
+function pushbutton34_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton34 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+msgbox("""Saturated Frames"" can be used to set a maximum number of frames in which the ROI can be fully saturated. This can also be input in terms of the percentage of total frames.","Help",'replace')
+
+
+% --- Executes on button press in pushbutton35.
+function pushbutton35_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton35 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+msgbox("""Area"" allows the user to select the minimum and maximum area of an included ROI. This is useful for excluding ROIs that are too small or too large.","Help",'replace')
+
+
+% --- Executes on button press in pushbutton36.
+function pushbutton36_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton36 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+msgbox("""Width"" measures the mean width of an ROI and allows you to select a minimum and maximum value for this parameter.","Help",'replace')
+
+
+% --- Executes on button press in pushbutton37.
+function pushbutton37_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton37 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+msgbox("""Skewness"" is used to describe the skewness of the probability distribution of either the dF/F data or the deconvolved data for an ROI.","Help",'replace')
+
+
+% --- Executes on button press in pushbutton38.
+function pushbutton38_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton38 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+msgbox("""Kurtosis"" is used to describe the probability distribution of either the dF/F data or the deconvolved data for an ROI. It measures the likelihood of finding outliers in a distribution. For example, a cell with large, fast, and frequent spikes in calcium levels will have a higher kurtosis value than cells with a more moderate distribution of slow activity.","Help",'replace')
+
+
+% --- Executes on button press in pushbutton39.
+function pushbutton39_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton39 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+msgbox("""Skewness & Kurtosis Data"" is used to select whether the dF/F or deconvolved data will be used as the basis of the exclusion criteria for these two parameters.","Help",'replace')
+
+
+% --- Executes on button press in pushbutton40.
+function pushbutton40_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton40 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+msgbox("The ""Save Settings"" button allows the user to save all settings under a specific name of your choosing. Settings are saved as .mat files. The ""Load Settings"" button allows one to load all saved settings in future sessions.","Help",'replace')
+
+
+% --- Executes on button press in pushbutton41.
+function pushbutton41_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton41 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+msgbox("The ""Include ROI"" and ""Exclude ROI"" buttons allow the user to manually include or exclude an ROI regardless of the parameters set under ""Automated Exclusion.""","Help",'replace')
+
+
+% --- Executes on button press in pushbutton42.
+function pushbutton42_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton42 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+msgbox("The ""Automated Exclusion"" section allows the user to set thresholds for a variety of criteria in order to ensure the validity of each ROI. If an ROI is outside of the set threshold for a criterion, it will be automatically excluded upon clicking ""Run Refinement.""","Help",'replace')

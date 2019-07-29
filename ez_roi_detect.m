@@ -338,7 +338,8 @@ function help_button_Callback(hObject, eventdata, handles)
 % hObject    handle to help_button (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
+filepath = fileparts([mfilename('fullpath') '.m']);
+system([filepath '/HELP.pdf']); %Load documentation
 
 
 function overall_progress_Callback(hObject, eventdata, handles)
