@@ -968,7 +968,7 @@ function text30_Callback(hObject, eventdata, handles)
 % hObject    handle to text30 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-msgbox("Choose the source of the template for motion correction. Choosing ""Previous Frame"" will align each frame, starting with the second frame, to its previous frame. ""Mean"" and ""Median"" calculate the mean and median intensity value for each pixel, respectively.  ""Max Projection"" creates a projection of the highest intensity value of each pixel. ""Brightest Frame"" detects the frame with the overall highest pixel intensity.","Help",'replace')
+msgbox("Choose the source of the template for motion correction. Choosing ""Previous Frame"" will align each frame, starting with the second frame, to its previous frame. ""Mean"" and ""Median"" calculate the mean and median intensity value for each pixel, respectively.  ""Max Projection"" creates a projection of the highest intensity value of each pixel. ""Brightest Frame"" detects the frame with the overall highest pixel intensity. Two other options are also included here and are based on the same principles as above but designed for working on a system with low RAM.","Help",'replace')
 
 
 % --- Executes on button press in pushbutton17.
@@ -1024,7 +1024,7 @@ function pushbutton23_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton23 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-msgbox("","Help",'replace')
+msgbox("""Low RAM Batch"" is used when a ""Low RAM"" template source is selected. These sources separate the videos into ""batches"" to prevent overloading of the computer’s RAM. The ""Low RAM Batch"" number indicates the number of frames to be placed in each batch.","Help",'replace')
 
 
 % --- Executes on button press in pushbutton24.
