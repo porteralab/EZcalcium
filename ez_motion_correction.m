@@ -22,7 +22,7 @@ function varargout = ez_motion_correction(varargin)
 
 % Edit the above text to modify the response to help ez_motion_correction
 
-% Last Modified by GUIDE v2.5 08-Jul-2019 14:59:27
+% Last Modified by GUIDE v2.5 26-Jul-2019 12:44:54
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -478,7 +478,8 @@ function help_button_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 %Open documentation file in the default program
-system('Calcium_Analysis_Documentation.pdf');
+filepath = fileparts([mfilename('fullpath') '.m']);
+system([filepath '/HELP.pdf']); %Load documentation
 
 
 function edit4_Callback(hObject, eventdata, handles)
@@ -953,3 +954,90 @@ function batch_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+
+% --- Executes during object creation, after setting all properties.
+function text6_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to text6 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+
+% --- Executes on button press in text30.
+function text30_Callback(hObject, eventdata, handles)
+% hObject    handle to text30 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+msgbox("Choose the source of the template for motion correction. Choosing ""Previous Frame"" will align each frame, starting with the second frame, to its previous frame. ""Mean"" and ""Median"" calculate the mean and median intensity value for each pixel, respectively.  ""Max Projection"" creates a projection of the highest intensity value of each pixel. ""Brightest Frame"" detects the frame with the overall highest pixel intensity. Two other options are also included here and are based on the same principles as above but designed for working on a system with low RAM.","Help",'replace')
+
+
+% --- Executes on button press in pushbutton17.
+function pushbutton17_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton17 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+msgbox("Choose the number of frames from which to create the template. If a large section of the video is stable and has a representative amount of fluorescence signal, but other sections exhibit a lot more motion artifact, it may be useful to restrict ""Template Frames"" to the stable frames of the video. Checking the box ""Use All Frames"" will automatically detect and use all the frames in any given video and ignore the input values.","Help",'replace')
+
+
+% --- Executes on button press in pushbutton18.
+function pushbutton18_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton18 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+msgbox("""Blocks"" refers to the number of blocks (spread vertically) that the image will be divided into prior to alignment.  To register the image as a single block, enter a ""Blocks"" value of 1.  Generally, using a larger number of blocks processes faster than using fewer blocks, due to the ease of aligning several smaller blocks instead of larger more complex images. However, it may also introduce artifacts on otherwise steady videos if blocks are too numerous. For example, a Blocks value of 8 for a 256x128 will break down into a total of 64 32x16 blocks in an 8x8 configuration. A recommended value for ""Blocks"" would be less than the square root of the number of pixel rows (video height).","Help",'replace')
+
+
+% --- Executes on button press in pushbutton19.
+function pushbutton19_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton19 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+msgbox("Select a format for the corrected video to be saved.  8-bit or 16-bit should be chosen to match the bit depth of the image acquisition. Although .mat files will load quickly for ROI selection, they are not viewable in ImageJ and other software packages. In EZcalcium, saving as a .mat is currently the only way to save a compressed version of .tif files over 4 GB.","Help",'replace')
+
+
+% --- Executes on button press in pushbutton20.
+function pushbutton20_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton20 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+msgbox("Choose a lossless compression option for saving a .tif file. These can reduce file size without losing any data but will likely take longer to save.  These do not apply to .mat or .avi files. ""Deflate"" generally results in the smallest file size when saving 16-bit .tiff files smaller than 4 GB. ""Packbits"" is usually the fastest form of compression but it may not reduce file size as much as other methods. If the user selects ""None"", this will result in no compression and will save in the fastest time, although this will also result in larger file sizes. For EZcalcium, ""None"" must be selected for saving .tif files over 4 GB.","Help",'replace')
+
+
+% --- Executes on button press in pushbutton21.
+function pushbutton21_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton21 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+msgbox("""Background Subtraction"" will remove elements of the images determined to be related to background changes in fluorescence intensity. The choice of ""Minimum"" removes the minimum value of each pixel from the pixel. This is useful for removing constant sources of brightness, such as bleed-through fluorescence, without impacting changes in imaged activity.","Help",'replace')
+
+
+% --- Executes on button press in pushbutton22.
+function pushbutton22_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton22 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+msgbox("""Iterations"" refers to the number of repeated times the user wishes to perform motion correction.  For a Template Source such as ""Mean,"" multiple iterations are useful so that the mean image projection used for the template will change with each iteration and result in improved motion correction. ""Iterations"" should generally be less than 7.","Help",'replace')
+
+
+% --- Executes on button press in pushbutton23.
+function pushbutton23_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton23 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+msgbox("""Low RAM Batch"" is used when a ""Low RAM"" template source is selected. These sources separate the videos into ""batches"" to prevent overloading of the computer’s RAM. The ""Low RAM Batch"" number indicates the number of frames to be placed in each batch.","Help",'replace')
+
+
+% --- Executes on button press in pushbutton24.
+function pushbutton24_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton24 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+msgbox("The ""Save Template"" option saves the template that was generated and used for alignment, for further reference. ""Save Max Projection"" saves a maximum intensity projection of all frames, no matter what template source was used.","Help",'replace')
+
+
+% --- Executes on button press in pushbutton25.
+function pushbutton25_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton25 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+msgbox("The ""Save Settings"" button allows the user to save all settings under a specific name of your choosing. Settings are saved as .mat files. These include all settings in the ""Settings"" section as well as timing data that records how long it took to go through the main steps of the previous five video alignments. The ""Load Settings"" button allows one to load all saved settings in future sessions.","Help",'replace')
