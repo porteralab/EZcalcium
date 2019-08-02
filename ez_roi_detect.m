@@ -1233,7 +1233,7 @@ function pushbutton14_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton14 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-msgbox("""Estimated Components"" is the estimated maximum number of components in the field of view. Multiple components may make up a single ROI, so set this value based on your method of ROI detection.  This must be set to a minimum value of 1.  If you want to perform fully manual ROI selection, set ""Estimated Components"" to 1 and check the box to enable ""Manual Initial Refinement"".  When the manual refinement step starts, delete the initial automatically detected ROI.  If no components are determined to be similar enough to be merged, the most likely result is that the number set for ""Estimated Components"" is the number that will be initially detected.","Help",'replace')
+msgbox("""Estimated Components"" is the estimated maximum number of components in the field of view. This must be set to a minimum value of 1.  If you want to perform fully manual ROI selection, set ""Estimated Components"" to 1 and check the box to enable ""Manual Initial Refinement"".  When the manual refinement step starts, delete the initial automatically detected ROI.  If no components are determined to be similar enough to be merged, the most likely result is that the number set for ""Estimated Components"" is the number that will be initially detected.","Help",'replace')
 
 
 % --- Executes on button press in pushbutton15.
