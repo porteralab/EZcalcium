@@ -210,7 +210,7 @@ for iteration=1:iterations
                     image_data(:,:,i)=imread(fullvidfile,(template_batch-1)*final_template_batch_size+i+frames_start-1,'info',vid_info); %Read the frame
                 end
                 template_mean_frames(:,:,template_batch)=mean(image_data,3); %Take the mean of the final batch, store it
-
+                
                 %Calculate the mean template, clear unneeded data
                 template=(mean(template_mean_frames,3)); %mean image
                 max_projection=max(template_max_frames,[],3);
@@ -255,10 +255,10 @@ for iteration=1:iterations
             
             %--------Start GPU processing--------
             %image_data=gpuArray(zeros(vid_height,vid_width,batch_size));
-             image_data=(zeros(vid_height,vid_width,batch_size));
-%             template=gpuArray(template);
-%             Nbasis=gpuArray(Nbasis);
-%             scalefactor=gpuArray(scalefactor);
+            image_data=(zeros(vid_height,vid_width,batch_size));
+            %             template=gpuArray(template);
+            %             Nbasis=gpuArray(Nbasis);
+            %             scalefactor=gpuArray(scalefactor);
             %image_data=zeros(vid_height,vid_width,batch_size);
             
             
@@ -290,8 +290,8 @@ for iteration=1:iterations
                 %========Call GPU Alignment=========
                 
                 
-%                 image_data = arrayfun( @doLucasKanade, ...
-%                     template, image_data, Nbasis);
+                %                 image_data = arrayfun( @doLucasKanade, ...
+                %                     template, image_data, Nbasis);
                 
                 parfor imagedex = 1:batch_size %For every frame of the video
                     I=(image_data(:,:,imagedex)); %loads one frame at a time
@@ -299,8 +299,8 @@ for iteration=1:iterations
                     image_data(:,:,imagedex)=image_data(:,:,imagedex)/scalefactor;
                 end
                 
-
-
+                
+                
                 %Find max of batch
                 if motcor.max==1
                     max_project_calc(:,:,batch)=max(image_data,[],3);
@@ -323,7 +323,7 @@ for iteration=1:iterations
                         image_data(:,:,i)=image_data(:,:,i)-image_datamin; %reads each frame and writes into image_data matrix
                     end
                 end
-
+                
                 %End GPU Processing
                 %image_data=gather(image_data);
                 
@@ -381,9 +381,9 @@ for iteration=1:iterations
                 image_data(:,:,i)=imread(fullvidfile,i+(batch-1)*final_batch_size,'info',vid_info); %Read the frame
             end
             
-%             mex=tic;
-%             CompileMexFiles %compile Mex files
-%             toc(mex)
+            %             mex=tic;
+            %             CompileMexFiles %compile Mex files
+            %             toc(mex)
             
             %Align batch
             parfor imagedex = 1:final_batch_size %For every frame of the video
@@ -393,11 +393,11 @@ for iteration=1:iterations
             end
             
             %Background subtracted version
-                if motcor.background_subtract==2 %Minimum pixel background subtraction
-                    parfor i = 1:final_batch_size %Loads every frame of the video
-                        image_data(:,:,i)=image_data(:,:,i)-image_datamin; %reads each frame and writes into image_data matrix
-                    end
+            if motcor.background_subtract==2 %Minimum pixel background subtraction
+                parfor i = 1:final_batch_size %Loads every frame of the video
+                    image_data(:,:,i)=image_data(:,:,i)-image_datamin; %reads each frame and writes into image_data matrix
                 end
+            end
             
             %Find max of last batch
             if motcor.max==1
@@ -411,7 +411,7 @@ for iteration=1:iterations
             motcor_update_overall(handles,progress,current_prog,iteration,iterations);
             set(handles.file_progress, 'String', [num2str(current_prog) '%']);
             drawnow; %update GUI
-           
+            
             %Save Max Projection
             if motcor.max==1
                 if bits==16
@@ -432,7 +432,7 @@ for iteration=1:iterations
                 end
             end
             
-           
+            
             %65536 frame length limit
             
             %XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
@@ -452,48 +452,16 @@ for iteration=1:iterations
             
         end
         %XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-            %XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-            %XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-            %XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-            %XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-            %XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-            %XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-            %XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-            %XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+        %XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+        %XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+        %XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+        %XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+        %XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+        %XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+        %XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+        %XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
         
-        else %Regular RAM versions of the motion correction
-        %=========Checks for compression=================
-        vid_info=imfinfo(fullvidfile); %Checks video file information
-        vid_height=vid_info(1).Height; %Sets height
-        vid_width=vid_info(1).Width; %Sets width
-        if strcmp(vid_info(1).Compression,'Uncompressed') %Loads uncompressed videos
-            image_data=loadtiff(fullvidfile);
-            num_frames=size(image_data,3);
-            
-        else %Loads Compressed videos
-            num_frames=numel(vid_info);
-            image_data=zeros(vid_height,vid_width,num_frames); %Makes zero matrix for speed
-            parfor i = 1:num_frames %Loads every frame of the video
-                image_data(:,:,i)=imread(fullvidfile,i,'info',vid_info); %reads each frame and writes into image_data matrix
-                if floor(i/100)==(i/100) %show only every 100 frames progress
-                    
-                    current_prog=round(load_time*(1+(load_time-1)*(1-i/num_frames)))/load_time;
-                    current_prog=round(current_prog*10)/10;
-                    motcor_update_overall(handles,progress,current_prog,iteration,iterations);
-                    set(handles.file_progress, 'String', [num2str(current_prog) '%']);
-                    drawnow; %update GUI
-                end
-            end
-        end
-        
-        %Checks for read errors
-        if num_frames==1
-            warning_text='Only 1 frame was detected. Either the incorrect video or a very large compressed TIFF file was chosen. TIFF files >4GB must be uncompressed.';
-            ez_warning_small(warning_text);
-        end
-        
-        
-    
+    else %Regular RAM versions of the motion correction
         set(handles.status_bar, 'String', 'Loading Video');
         drawnow;
         %======================Tif/Tiff=========================
@@ -898,17 +866,17 @@ for ii = 1:niter
     gx = B'*sum(reshape(del,size(dTx)).*dTx,2);
     gy = B'*sum(reshape(del,size(dTx)).*dTy,2);
     
-    %special trick for H - harder%    
-     Hx = constructH(allBs'*sum(dTx.^2,2),size(B,2))+theI;
-     Hy = constructH(allBs'*sum(dTy.^2,2),size(B,2))+theI;
+    %special trick for H - harder%
+    Hx = constructH(allBs'*sum(dTx.^2,2),size(B,2))+theI;
+    Hy = constructH(allBs'*sum(dTy.^2,2),size(B,2))+theI;
     
     
-        %Fast method
-%         dTx_s = reshape(bsxfun(@times,reshape(B,size(B,1),1,size(B,2)),dTx),[numel(dTx),size(B,2)]);
-%         dTy_s = reshape(bsxfun(@times,reshape(B,size(B,1),1,size(B,2)),dTy),[numel(dTx),size(B,2)]);
-%  
-%         Hx = (doMult(dTx_s) + theI);
-%         Hy = (doMult(dTy_s) + theI);
+    %Fast method
+    %         dTx_s = reshape(bsxfun(@times,reshape(B,size(B,1),1,size(B,2)),dTx),[numel(dTx),size(B,2)]);
+    %         dTy_s = reshape(bsxfun(@times,reshape(B,size(B,1),1,size(B,2)),dTy),[numel(dTx),size(B,2)]);
+    %
+    %         Hx = (doMult(dTx_s) + theI);
+    %         Hy = (doMult(dTy_s) + theI);
     
     
     dpx_ = Hx\gx;
@@ -951,8 +919,8 @@ for ii = 1:nblocks
     dy = (ii-1)*size(T,1)/nblocks;
     rg = (1:size(T,1)/nblocks) + floor(dy); %added rounding 8/26/14 DC
     %rg = (1:size(T,1)/nblocks) + dy;
-%     T_ = gpuArray(T(rg,:));
-%     I_ = gpuArray(I(rg,:));
+    %     T_ = gpuArray(T(rg,:));
+    %     I_ = gpuArray(I(rg,:));
     T_ = T(rg,:);
     I_ = I(rg,:);
     T_ = bsxfun(@minus,T_,mean(T_,1));
@@ -961,16 +929,16 @@ for ii = 1:nblocks
     theM = dx.*mask;
     
     [yy,xx] = find(theM == max(theM(:)),1,'last'); %changed to find only first match
-%     xx=gpuArray(xx);
-%     yy=gpuArray(yy);
-
+    %     xx=gpuArray(xx);
+    %     yy=gpuArray(yy);
+    
     %[yy,xx] = find(theM == max(theM(:)));
-%     xx_mat=gather(xx);
-%     yy_mat=gather(yy);
+    %     xx_mat=gather(xx);
+    %     yy_mat=gather(yy);
     dpx(ii) = (xx-thecen(1));
     dpy(ii) = (yy-thecen(2));
-%     dpx(ii) = (xx_mat-thecen(1));
-%     dpy(ii) = (yy_mat-thecen(2));
+    %     dpx(ii) = (xx_mat-thecen(1));
+    %     dpy(ii) = (yy_mat-thecen(2));
 end
 end
 
