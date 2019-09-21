@@ -779,10 +779,10 @@ else
     set(handles.ROI_baseline_stability,'ForegroundColor','white');
 end
 
-if handles.ROI.Roundness(ROI_number)>=input_roundness
+if handles.ROI.Roundness(ROI_number)<=input_roundness
     set(handles.ROI_roundness,'BackgroundColor','white');
     set(handles.ROI_roundness,'ForegroundColor','black');
-elseif handles.ROI.Roundness(ROI_number)>=border_roundness
+elseif handles.ROI.Roundness(ROI_number)<=border_roundness
     set(handles.ROI_roundness,'BackgroundColor','yellow');
     set(handles.ROI_roundness,'ForegroundColor','black');
 else
