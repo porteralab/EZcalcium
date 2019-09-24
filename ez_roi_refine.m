@@ -137,7 +137,7 @@ save('autosave_ez_refine.mat','refine_roi');
     %User input sliding window number of frames for detecting baseline ====ADD BASELINE
     baseline_window=str2num(get(handles.input_baseline_window,'string'));
     %calculate Z_F
-    handles.ROI.Z_F=ez_ZF(handles.ROI.F,baseline_window)';
+    %handles.ROI.Z_F=ez_ZF(handles.ROI.F,baseline_window)';
     %First Frame End
     first_frame_start=1;
     first_frame_end=floor(str2double(get(handles.input_baseline_stability_percent,'string'))/100*frames);
@@ -145,9 +145,9 @@ save('autosave_ez_refine.mat','refine_roi');
     last_frame_start=frames-first_frame_end+1;
     last_frame_end=frames;
     %Calculate First Baseline
-    [~,first_baseline,~,~,~]=ez_ZF(handles.ROI.Z_F(:,first_frame_start:first_frame_end),baseline_window);   
+    [~,first_baseline,~,~]=ez_ZF(handles.ROI.F(first_frame_start:first_frame_end,:),baseline_window);
     %Calculate Last Baseline
-    [~,last_baseline,~,~,~]=ez_ZF(handles.ROI.Z_F(:,last_frame_start:last_frame_end),baseline_window);      
+    [~,last_baseline,~,~]=ez_ZF(handles.ROI.F(last_frame_start:last_frame_end,:),baseline_window);      
     %Calculate Stability (difference in Z score of baselines)
     handles.ROI.Baseline_stability=abs(first_baseline-last_baseline); 
     
@@ -159,7 +159,7 @@ save('autosave_ez_refine.mat','refine_roi');
     handles.ROI.active_ROI=zeros(roi_number,1);
     for j=1:roi_number %check if activity is above threshold
         for i=1:frames
-            if handles.ROI.Z_F(j,i)>activity_value
+            if handles.ROI.F(i,j)>activity_value
                 significant_frames(i,j)=1;
             end
         end
@@ -170,7 +170,7 @@ save('autosave_ez_refine.mat','refine_roi');
             if significant_frames(i,j)==1
                 significant_count=significant_count+1;
                 for k=1:activity_frames-1
-                    if ((i+k <= size(handles.ROI.Z_F,2)) && (significant_frames(i+k,j)==1))
+                    if ((i+k <= size(handles.ROI.F,2)) && (significant_frames(i+k,j)==1))
                         significant_count=significant_count+1;
                     end
                 end
@@ -421,7 +421,7 @@ if iscell(add_file)||ischar(add_file) %Checks to see if anything was selected
     %User input sliding window number of frames for detecting baseline ====ADD BASELINE
     baseline_window=str2num(get(handles.input_baseline_window,'string'));
     %calculate Z_F
-    handles.ROI.Z_F=ez_ZF(handles.ROI.F,baseline_window)';
+    %handles.ROI.Z_F=ez_ZF(handles.ROI.F,baseline_window)';
     %First Frame End
     first_frame_start=1;
     first_frame_end=floor(str2double(get(handles.input_baseline_stability_percent,'string'))/100*frames);
@@ -429,9 +429,9 @@ if iscell(add_file)||ischar(add_file) %Checks to see if anything was selected
     last_frame_start=frames-first_frame_end+1;
     last_frame_end=frames;
     %Calculate First Baseline
-    [~,first_baseline,~,~,~]=ez_ZF(handles.ROI.Z_F(:,first_frame_start:first_frame_end),baseline_window);   
+    [~,first_baseline,~,~]=ez_ZF(handles.ROI.F(first_frame_start:first_frame_end,:),baseline_window);   
     %Calculate Last Baseline
-    [~,last_baseline,~,~,~]=ez_ZF(handles.ROI.Z_F(:,last_frame_start:last_frame_end),baseline_window);      
+    [~,last_baseline,~,~]=ez_ZF(handles.ROI.F(last_frame_start:last_frame_end,:),baseline_window);      
     %Calculate Stability (difference in Z score of baselines)
     handles.ROI.Baseline_stability=abs(first_baseline-last_baseline); 
     
@@ -443,7 +443,7 @@ if iscell(add_file)||ischar(add_file) %Checks to see if anything was selected
     handles.ROI.active_ROI=zeros(roi_number,1);
     for j=1:roi_number %check if activity is above threshold
         for i=1:frames
-            if handles.ROI.Z_F(j,i)>activity_value
+            if handles.ROI.F(i,j)>activity_value
                 significant_frames(i,j)=1;
             end
         end
@@ -454,7 +454,7 @@ if iscell(add_file)||ischar(add_file) %Checks to see if anything was selected
             if significant_frames(i,j)==1
                 significant_count=significant_count+1;
                 for k=1:activity_frames-1
-                    if ((i+k <= size(handles.ROI.Z_F,2)) && (significant_frames(i+k,j)==1))
+                    if ((i+k <= size(handles.ROI.F,2)) && (significant_frames(i+k,j)==1))
                         significant_count=significant_count+1;
                     end
                 end
@@ -467,10 +467,10 @@ if iscell(add_file)||ischar(add_file) %Checks to see if anything was selected
     end
     
     %Calculated Saturated Frames
-    saturated_frames_value=max(handles.ROI.Z_F,[],2); %find maximum value in trace
+    saturated_frames_value=max(handles.ROI.F,[],2); %find maximum value in trace
     handles.ROI.Saturated_frames=zeros(1,roi_number); %initialize
     for i = 1:roi_number
-        handles.ROI.Saturated_frames(i)=numel(find(handles.ROI.Z_F(:,i)==saturated_frames_value(i)));
+        handles.ROI.Saturated_frames(i)=numel(find(handles.ROI.F(:,i)==saturated_frames_value(i)));
         if handles.ROI.Saturated_frames(i)==1 %If only one frame is at max value, assume it is not saturated
             handles.ROI.Saturated_frames(i)=0;
         end
@@ -502,10 +502,10 @@ if iscell(add_file)||ischar(add_file) %Checks to see if anything was selected
     end
     
     %Calculate Kurtosis
-     handles.ROI.Kurtosis_raw=kurtosis(handles.ROI.Z_F'); %raw data kurtosis
+     handles.ROI.Kurtosis_raw=kurtosis(handles.ROI.F'); %raw data kurtosis
      handles.ROI.Kurtosis_deconv=kurtosis(handles.ROI.S_or');
     %Calculate Skewness
-     handles.ROI.Skewness_raw=skewness(handles.ROI.Z_F'); %raw data kurtosis
+     handles.ROI.Skewness_raw=skewness(handles.ROI.F'); %raw data kurtosis
      handles.ROI.Skewness_deconv=skewness(handles.ROI.S_or');
     
     drawnow %update GUI
@@ -573,8 +573,8 @@ axes(handles.isolated_ROI); %Select whole field axes
 
 %Display raw dF/F trace (if exists)
 axes(handles.ROI_dF_trace);
-%plot(handles.ROI.C2_raw_or(ROI_number,:))
-plot(handles.ROI.Z_F(ROI_number,:))
+plot(handles.ROI.C2_raw_or(ROI_number,:))
+%plot(handles.ROI.Z_F(ROI_number,:))
 set(gca,'xtick',[])
 set(gca,'xticklabel',[])
 set(gca,'ytick',[])
@@ -1039,7 +1039,7 @@ F=handles.ROI.F(:,handles.ROI.included_ROIs); %For legacy Portera Lab compatibil
 C_or_refined=handles.ROI.C_or(handles.ROI.included_ROIs,:); %Fitted data
 C2_raw_or_refined=handles.ROI.C2_raw_or(handles.ROI.included_ROIs,:); %Raw data
 S_or_refined=handles.ROI.S_or(handles.ROI.included_ROIs,:); %Deconvolved data
-Z_F_refined=handles.ROI.Z_F(handles.ROI.included_ROIs,:); %Z-score data
+%Z_F_refined=handles.ROI.Z_F(handles.ROI.included_ROIs,:); %Z-score data
 ROI_centers=handles.ROI.center(handles.ROI.included_ROIs,:);
 
 %CSV Export
@@ -1050,8 +1050,8 @@ refined_filename=[handles.full_filepath(1:end-4) '_refined_fit.csv'];
 csvwrite(refined_filename,C_or_refined);
 refined_filename=[handles.full_filepath(1:end-4) '_refined_decon.csv'];
 csvwrite(refined_filename,S_or_refined);
-refined_filename=[handles.full_filepath(1:end-4) '_refined_ZF.csv'];
-csvwrite(refined_filename,Z_F_refined);
+% refined_filename=[handles.full_filepath(1:end-4) '_refined_ZF.csv'];
+% csvwrite(refined_filename,Z_F_refined);
 refined_filename=[handles.full_filepath(1:end-4) '_refined_centers.csv'];
 csvwrite(refined_filename,ROI_centers);
 end
@@ -1059,7 +1059,7 @@ end
 %MAT Export
 if mat_save
 refined_filename=[handles.full_filepath(1:end-4) '_refined.mat'];
-save(refined_filename,'C_or_refined','C2_raw_or_refined','S_or_refined','Z_F_refined','F','ROI_centers');
+save(refined_filename,'C_or_refined','C2_raw_or_refined','S_or_refined','F','ROI_centers');
 end
 
 %XLSX Export
@@ -1068,7 +1068,7 @@ refined_filename=[handles.full_filepath(1:end-4) '_refined.xlsx'];
 xlswrite(refined_filename,C2_raw_or_refined,'Raw');
 xlswrite(refined_filename,C_or_refined,'Fit');
 xlswrite(refined_filename,S_or_refined,'Deconvolved');
-xlswrite(refined_filename,Z_F_refined,'Z_F');
+% xlswrite(refined_filename,Z_F_refined,'Z_F');
 xlswrite(refined_filename,ROI_centers,'Centers');
 end
 
