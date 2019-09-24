@@ -21,5 +21,5 @@ function [Z_F,F_baseline_mean,F_baseline_std,baseline_start_frame]=ez_ZF(F,frame
 % baseline_start_frame indicates the first frame of baseline for each ROI
 
 [F_baseline_std,baseline_start_frame] = min(movstd(F,frames,'Endpoints','discard'));
-F_baseline_mean = mean(F(baseline_start_frame:baseline_start_frame+frames-1));
-Z_F = (F - F_baseline_mean) / F_baseline_std;
+F_baseline_mean = mean(F(baseline_start_frame:baseline_start_frame+frames-1,:),1);
+Z_F = (F - F_baseline_mean) ./ F_baseline_std;
