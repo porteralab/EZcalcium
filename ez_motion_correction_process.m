@@ -127,13 +127,6 @@ for iteration=1:iterations
         
         
         vid_info=imfinfo(fullvidfile); %Checks video file information
-        if vid_info(1).FileSize>800000000 %Checks file size
-            fprintf(2,'Warning!!! Files greater than 800MB should only be used with 64-bit MATLAB!') %this is a MATLAB problem.
-            %Use a 64 bit version of MATLAB (designated with a 'b' at the end of
-            %the version with a 64 bit computer on a 64 bit operating system to
-            %handle files greater than 800MB. Matrix size limit is actually just over
-            %1GB, but you need extra room for the purpose of motion correction.
-        end
         
         %num_frames=numel(vid_info); %extracts number of frame information
         vid_height=vid_info(1).Height; %Sets height
@@ -468,13 +461,6 @@ for iteration=1:iterations
         if strcmpi(extension,'tif') || strcmpi(extension,'tiff')
             
             vid_info=imfinfo(fullvidfile); %Checks video file information
-            if vid_info(1).FileSize>800000000 %Checks file size
-                fprintf(2,'Warning!!! Files greater than 800MB should only be used with 64-bit MATLAB!') %this is a MATLAB problem.
-                %Use a 64 bit version of MATLAB (designated with a 'b' at the end of
-                %the version with a 64 bit computer on a 64 bit operating system to
-                %handle files greater than 800MB. Matrix size limit is actually just over
-                %1GB, but you need extra room for the purpose of motion correction.
-            end
             
             %num_frames=numel(vid_info); %extracts number of frame information
             vid_height=vid_info(1).Height; %Sets height

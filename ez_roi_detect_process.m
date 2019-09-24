@@ -11,9 +11,6 @@ vidfile_name=fullvidfile(1:extension_index-1); %Extract video file name without 
 if strcmpi(extension,'tif') || strcmpi(extension,'tiff')
     %----------------Read tiff file--------------
     vid_info=imfinfo(fullvidfile); %Checks video file information
-    if vid_info(1).FileSize>800000000 %Checks file size
-        fprintf(2,'Warning!!! Files greater than 800MB should only be used with 64-bit MATLAB!') %this is a MATLAB problem.
-    end
     vid_height=vid_info(1).Height; %Sets height
     vid_width=vid_info(1).Width; %Sets width
     
