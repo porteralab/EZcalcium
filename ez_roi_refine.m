@@ -277,7 +277,7 @@ for ROI=1:size(handles.ROI.F,2)
 end %End the ROI loop
 
 %Autosave new data
-save(handles.full_filepath);
+% save(handles.full_filepath);
  
  
 
@@ -1072,7 +1072,7 @@ xlswrite(refined_filename,S_or_refined,'Deconvolved');
 xlswrite(refined_filename,ROI_centers,'Centers');
 end
 
-save(handles.full_filepath);
+% save(handles.full_filepath);
 
 
 
