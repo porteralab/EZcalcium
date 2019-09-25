@@ -14,21 +14,21 @@ if strcmpi(extension,'tif') || strcmpi(extension,'tiff')
     vid_height=vid_info(1).Height; %Sets height
     vid_width=vid_info(1).Width; %Sets width
     
-%     %Convert certain types of Tiff files to be compatible
-%     if isfield(vid_info,'StripOffsets') %Check if formatted correctly
-%         if isa(vid_info(1).StripOffsets,'double') %check if a double
-%             set(handles.status_bar, 'String', 'Converting Tiff'); %Update status bar
-%             drawnow; %Update GUI
-%             for i=1:length(vid_info)
-%                 vid_info(i).StripOffsets=sum(vid_info(i).StripOffsets);
-%             end
-%         end
-%         if isa(vid_info(1).StripByteCounts,'double') %check if a double
-%             for i=1:length(vid_info)
-%                 vid_info(i).StripByteCounts=sum(vid_info(i).StripByteCounts);
-%             end
-%         end
-%     end
+    %     %Convert certain types of Tiff files to be compatible
+    %     if isfield(vid_info,'StripOffsets') %Check if formatted correctly
+    %         if isa(vid_info(1).StripOffsets,'double') %check if a double
+    %             set(handles.status_bar, 'String', 'Converting Tiff'); %Update status bar
+    %             drawnow; %Update GUI
+    %             for i=1:length(vid_info)
+    %                 vid_info(i).StripOffsets=sum(vid_info(i).StripOffsets);
+    %             end
+    %         end
+    %         if isa(vid_info(1).StripByteCounts,'double') %check if a double
+    %             for i=1:length(vid_info)
+    %                 vid_info(i).StripByteCounts=sum(vid_info(i).StripByteCounts);
+    %             end
+    %         end
+    %     end
     
     %Checks for compression
     if strcmp(vid_info(1).Compression,'Uncompressed') %Loads uncompressed videos
@@ -121,15 +121,11 @@ if ~isa(Y,'single');    Y = single(Y);  end %Convert to single if not already
 %         Y=(Y-original_min);
 %         new_max=max(max(max(Y)));
 %         Y=Y*original_max/new_max;
-        
+
 %Try BG Subtraction Early
 
 % BG_min=min(Y,[],3);
 % Y=Y-BG_min;
-        
- Y=imadjustn(uint16(Y));
- Y=single(Y);        
-
 
 [d1,d2,T] = size(Y); %Extract dimensions of dataset
 d = d1*d2; %Calculate total number of pixels
