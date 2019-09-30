@@ -222,10 +222,10 @@ end
 %-------------Update spatial and temporal components-------------------
 set(handles.status_bar, 'String', 'Updating components');
 drawnow; %Update GUI
-Y = reshape(Y,d,T);
-[A,b,Cin] = update_spatial_components(Y,Cin,fin,[Ain,bin],P,options); %Update spatial components
+Yr = reshape(Y,d,T); clear Y
+[A,b,Cin] = update_spatial_components(Yr,Cin,fin,[Ain,bin],P,options); %Update spatial components
 P.p = 0;    %Turn off autoregression dynamics temporarily for speed
-[C,f,P,S,~] = update_temporal_components(Y,A,b,Cin,fin,P,options); %Update temporal components
+[C,f,P,S,~] = update_temporal_components(Yr,A,b,Cin,fin,P,options); %Update temporal components
 %-----------End update spatial and temporal components-----------------
 
 %---------------Classify and Select-------------
@@ -262,7 +262,7 @@ P.p = 0;    %Turn off autoregression dynamics temporarily for speed
 %------------------------Merge found components------------------------
 set(handles.status_bar, 'String', 'Merging found components'); %Update status bar
 drawnow; %Update GUI
-[Am,Cm,K_m,merged_ROIs,Pm,~] = merge_components(Y,A,b,C,f,P,S,options); %Merge similar components
+[Am,Cm,K_m,merged_ROIs,Pm,~] = merge_components(Yr,A,b,C,f,P,S,options); %Merge similar components
 
 %------------Generate merging example-------------
 if and(autoroi.check_merge, ~isempty(merged_ROIs)) %Check if "Display Merging Example" is selected in GUI and that at least two components were merged
@@ -285,20 +285,21 @@ end
 
 %---------------Update components again--------------------
 Pm.p=p; %Restore autoregression dynamics value
-[A2,b2,C2] = update_spatial_components(Y,Cm,f,[Am,b],Pm,options); %Update spatial components
-C2_raw=C2; %Save a copy of C2 data, before many data points are constrained to non-negative values
-[C2,f2,P2,S2,~] = update_temporal_components(Y,A2,b2,C2,f,Pm,options); %Update temporal components
+[A2,b2,C2] = update_spatial_components(Yr,Cm,f,[Am,b],Pm,options); %Update spatial components
+[C2,f2,P2,S2,~] = update_temporal_components(Yr,A2,b2,C2,f,Pm,options); %Update temporal components
 
 %===============================Plotting================================
 set(handles.status_bar, 'String', 'Plotting components'); %Update status bar
 drawnow; %Update GUI
-[A_or,C_or,C2_raw_or,S_or,P_or] = ez_order_ROIs(A2,C2,C2_raw,S2,P2); %Reorder ROIs
-[C_df,~] = extract_DF_F(Y,A_or,C_or,P_or,options); %Extract DF/F values
-F=C2_raw_or'; %Save raw fluorescence data
+
+[A_or,C_or,S_or,P_or] = order_ROIs(A2,C2,S2,P2); %Reorder ROIs
+
+% Calculate traces to be saved
+[F_raw,F_inferred] = construct_traces(Yr,A_or,C_or,b2,f2,options);
 
 %------------ROI Map Plotting---------------
 figure; %Open a new figure
-[Coor,~] = plot_contours(A_or,Cn,options,1); %Run calculations for plotting an ROI map. One is automatically opened, but can be closed so that the matrix Coor is still generated.
+plot_contours(A_or,Cn,options,1); %Run calculations for plotting an ROI map. One is automatically opened, but can be closed so that the matrix Coor is still generated.
 if autoroi.check_map==1 %Check if "Display ROI Map" has been selected in the GUI
     if get(handles.check_pdf,'Value')==1 %Check if "Save PDFs" has been selected in the GUI
         fig=gcf; %Target the current figure
@@ -316,14 +317,14 @@ end
 
 %-----------Display Contours----------------
 if autoroi.check_contours==1 %Check if "Display Contours" has been selected in the GUI
-    plot_components_GUI(Y,A_or,C_or,b2,f2,Cn,options); %Plot individual components
+    plot_components_GUI(Yr,A_or,C_or,b2,f2,Cn,options); %Plot individual components
 end
 
 %-------------PDF Generation---------------
 open_pdf=get(handles.open_pdf,'Value'); %Check if "Open PDFs" has been selected in the GUI, to be passed to plotting functions
 if get(handles.check_pdf,'Value')==1 %Check if "Save PDFs" has been selected in the GUI
     dF_filename=[vidfile_name '_dF']; %dF/F plots name
-    ez_multiplot(C_df',10,dF_filename,1,'Frame',1,'dF/F',1,open_pdf); %Generate and save dF/F plots
+    ez_multiplot(F_inferred',10,dF_filename,1,'Frame',1,'dF/F',1,open_pdf); %Generate and save dF/F plots
     if p>0 %Only export rate if using dynamics
         spike_filename=[vidfile_name '_rate']; %Firing rate plots name
         ez_multiplot(S_or',10,spike_filename,1,'Frame',1,'Rate',1,open_pdf); %Generate and save firing rate plots
@@ -337,19 +338,35 @@ drawnow; %Update GUI
 
 %------Save .mat file (workspace)----
 progress.newfile=[vidfile_name '_roi' '.mat']; %.mat file name passed back to GUI
-save([vidfile_name '_roi'],'S_or','C_df','A_or','C_or','b2','f2','Cn','C2_raw_or','options','autoroi','center','Coor','F'); %Save selected matrices to .mat file
-%Not saving Yr due to space issues
+save([vidfile_name '_roi'],'A_or','C_or','S_or','P_or','Cn','F_raw','F_inferred','options','autoroi');
 
 %-----------Save .csv files---------
 if autoroi.check_csv==1 %Check if "Export to .csv" is selected in GUI
-    csvwrite([vidfile_name '_roi_dF'],full(C_df')); %Write dF/F csv
-    if p>0 %Only export rate if using dynamics
+    csvwrite([vidfile_name '_roi_dF'],full(F_inferred')); %Write dF/F csv
+    if p > 0 %Only export rate if using dynamics
         csvwrite([vidfile_name '_roi_rate'],full(S_or')); %Write rate csv
     end
-    csvwrite([vidfile_name '_roi_centers'],center'); %Write ROI center coordinates csv
-    csvwrite([vidfile_name '_roi_raw'],C2_raw_or'); %Write raw F data csv
+    csvwrite([vidfile_name '_roi_raw'],F_raw'); %Write raw F data csv
 end
 set(handles.status_bar, 'String', 'ROI Detection Complete!'); %Update status bar
 drawnow; %Update GUI
 %=========================End save data==================================
+end
+
+function [F_raw,F_inferred] = construct_traces(Y,A,C,b,f,options)
+Y = double(Y);
+b = double(b);
+C = double(C);
+f = double(f);
+nA = full(sqrt(sum(A.^2))');
+[K,~] = size(C);
+A = A/spdiags(nA,0,K,K);
+C = bsxfun(@times,C,nA(:));
+AY = mm_fun(A,Y);
+
+Y_r = (AY- (A'*A)*C - full(A'*b)*f) + C;
+[~,Df] = extract_DF_F(Y,A,C,[],options,AY);
+
+F_raw = Y_r ./ Df;
+F_inferred = C ./ Df;
 end
