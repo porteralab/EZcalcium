@@ -135,9 +135,9 @@ save('autosave_ez_refine.mat','refine_roi');
     roi_number=size(handles.ROI.F_raw,1);
     
     %User input sliding window number of frames for detecting baseline ====ADD BASELINE
-    baseline_window=str2num(get(handles.input_baseline_window,'string'));
-    %calculate Z_F
-    %handles.ROI.Z_F=ez_ZF(handles.ROI.F,baseline_window)';
+    baseline_window=str2double(get(handles.input_baseline_window,'string'));
+    %calculate Z_mod
+    handles.ROI.Z_mod=ez_ZF(handles.ROI.F_raw',baseline_window)';
     %First Frame End
     first_frame_start=1;
     first_frame_end=floor(str2double(get(handles.input_baseline_stability_percent,'string'))/100*frames);
@@ -145,9 +145,9 @@ save('autosave_ez_refine.mat','refine_roi');
     last_frame_start=frames-first_frame_end+1;
     last_frame_end=frames;
     %Calculate First Baseline
-    [~,first_baseline,~,~]=ez_ZF(handles.ROI.F_raw(:,first_frame_start:first_frame_end)',baseline_window);
+    [~,first_baseline,~,~]=ez_ZF(handles.ROI.Z_mod(:,first_frame_start:first_frame_end),baseline_window);
     %Calculate Last Baseline
-    [~,last_baseline,~,~]=ez_ZF(handles.ROI.F_raw(:,last_frame_start:last_frame_end)',baseline_window);      
+    [~,last_baseline,~,~]=ez_ZF(handles.ROI.Z_mod(:,last_frame_start:last_frame_end),baseline_window);      
     %Calculate Stability (difference in Z score of baselines)
     handles.ROI.Baseline_stability=abs(first_baseline-last_baseline); 
     
@@ -159,7 +159,7 @@ save('autosave_ez_refine.mat','refine_roi');
     handles.ROI.active_ROI=zeros(roi_number,1);
     for i=1:roi_number %check if activity is above threshold
         for j=1:frames
-            if handles.ROI.F_raw(i,j)>activity_value
+            if handles.ROI.Z_mod(i,j)>activity_value
                 significant_frames(i,j)=1;
             end
         end
@@ -170,7 +170,7 @@ save('autosave_ez_refine.mat','refine_roi');
             if significant_frames(i,j)==1
                 significant_count=significant_count+1;
                 for k=1:activity_frames-1
-                    if ((i+k <= size(handles.ROI.F_raw,1)) && (significant_frames(i+k,j)==1))
+                    if ((i+k <= size(handles.ROI.Z_mod,1)) && (significant_frames(i+k,j)==1))
                         significant_count=significant_count+1;
                     end
                 end
@@ -260,7 +260,7 @@ for ROI=1:size(handles.ROI.F_raw,1)
     %Mark Borderline, Exclude, or Include
     if borderline_count==0 %No borderline, no exclusions
         include_ROI_Callback(hObject, eventdata, handles) %include ROI
-    elseif borderline_count<=str2num(get(handles.input_borderline_allowance,'string'))
+    elseif borderline_count <= str2double(get(handles.input_borderline_allowance,'string'))
         %mark as borderline
         ROI_new_string=string(get(handles.ROI_list,'String'));
         ROI_new_string(ROI,1)=[num2str(ROI) ' B'];
@@ -419,9 +419,9 @@ if iscell(add_file)||ischar(add_file) %Checks to see if anything was selected
     
     %Use 40 frame sliding window for detecting baseline ====ADD BASELINE
     %User input sliding window number of frames for detecting baseline ====ADD BASELINE
-    baseline_window=str2num(get(handles.input_baseline_window,'string'));
-    %calculate Z_F
-    %handles.ROI.Z_F=ez_ZF(handles.ROI.F,baseline_window)';
+    baseline_window=str2double(get(handles.input_baseline_window,'string'));
+    %calculate Z_mod
+    handles.ROI.Z_mod=ez_ZF(handles.ROI.F_raw',baseline_window)';
     %First Frame End
     first_frame_start=1;
     first_frame_end=floor(str2double(get(handles.input_baseline_stability_percent,'string'))/100*frames);
@@ -429,9 +429,9 @@ if iscell(add_file)||ischar(add_file) %Checks to see if anything was selected
     last_frame_start=frames-first_frame_end+1;
     last_frame_end=frames;
     %Calculate First Baseline
-    [~,first_baseline,~,~]=ez_ZF(handles.ROI.F_raw(:,first_frame_start:first_frame_end)',baseline_window);   
+    [~,first_baseline,~,~]=ez_ZF(handles.ROI.Z_mod(:,first_frame_start:first_frame_end)',baseline_window);   
     %Calculate Last Baseline
-    [~,last_baseline,~,~]=ez_ZF(handles.ROI.F_raw(:,last_frame_start:last_frame_end)',baseline_window);      
+    [~,last_baseline,~,~]=ez_ZF(handles.ROI.Z_mod(:,last_frame_start:last_frame_end)',baseline_window);      
     %Calculate Stability (difference in Z score of baselines)
     handles.ROI.Baseline_stability=abs(first_baseline-last_baseline); 
     
@@ -443,7 +443,7 @@ if iscell(add_file)||ischar(add_file) %Checks to see if anything was selected
     handles.ROI.active_ROI=zeros(roi_number,1);
     for i=1:roi_number %check if activity is above threshold
         for j=1:frames
-            if handles.ROI.F_raw(i,j)>activity_value
+            if handles.ROI.Z_mod(i,j)>activity_value
                 significant_frames(i,j)=1;
             end
         end
@@ -454,7 +454,7 @@ if iscell(add_file)||ischar(add_file) %Checks to see if anything was selected
             if significant_frames(i,j)==1
                 significant_count=significant_count+1;
                 for k=1:activity_frames-1
-                    if ((i+k <= size(handles.ROI.F_raw,1)) && (significant_frames(i+k,j)==1))
+                    if ((i+k <= size(handles.ROI.Z_mod,1)) && (significant_frames(i+k,j)==1))
                         significant_count=significant_count+1;
                     end
                 end
@@ -467,7 +467,7 @@ if iscell(add_file)||ischar(add_file) %Checks to see if anything was selected
     end
     
     %Calculated Saturated Frames
-    saturated_frames_value=max(handles.ROI.F_raw',[],2); %find maximum value in trace
+    saturated_frames_value=max(handles.ROI.F_raw,[],1); %find maximum value in trace
     handles.ROI.Saturated_frames=zeros(1,roi_number); %initialize
     for i = 1:roi_number
         handles.ROI.Saturated_frames(i)=numel(find(handles.ROI.F_raw(i,:)==saturated_frames_value(i)));
@@ -573,8 +573,8 @@ axes(handles.isolated_ROI); %Select whole field axes
 
 %Display raw dF/F trace (if exists)
 axes(handles.ROI_dF_trace);
-plot(handles.ROI.F_raw(ROI_number,:))
-%plot(handles.ROI.Z_F(ROI_number,:))
+% plot(handles.ROI.F_raw(ROI_number,:))
+plot(handles.ROI.Z_mod(ROI_number,:))
 set(gca,'xtick',[])
 set(gca,'xticklabel',[])
 set(gca,'ytick',[])
@@ -583,7 +583,7 @@ set(gca,'box','off')
 
 hold on %Add active trace threshold
 if get(handles.input_dF_activity_style,'Value')==1
-    threshold_line=zeros(1,size(handles.ROI.F_raw,2))+str2num(get(handles.input_dF_activity_value,'String'));
+    threshold_line=zeros(1,size(handles.ROI.Z_mod,2))+str2num(get(handles.input_dF_activity_value,'String'));
     plot(threshold_line);
 end
 
@@ -667,30 +667,30 @@ set(handles.ROI_saturated_frames,'String',num2str(round(handles.ROI.Saturated_fr
 
 %Grab all exclusion values
 input_activity_style=(get(handles.input_dF_activity_style,'Value'));
-input_activity_value=str2num(get(handles.input_dF_activity_value,'String'));
-input_activity_frames=str2num(get(handles.input_dF_activity_frames,'String'));
-input_baseline_stability=str2num(get(handles.input_baseline_stability,'String'));
-input_baseline_stability_percent=str2num(get(handles.input_baseline_stability_percent,'String'));
-input_baseline_window=str2num(get(handles.input_baseline_window,'String'));
-input_roundness=str2num(get(handles.input_roundness,'String'));
-input_oblongness=str2num(get(handles.input_oblongness,'String'));
-input_area_min=str2num(get(handles.input_area_min,'String'));
-input_area_max=str2num(get(handles.input_area_max,'String'));
-input_width_min=str2num(get(handles.input_width_min,'String'));
-input_width_max=str2num(get(handles.input_width_max,'String'));
-input_skewness_min=str2num(get(handles.input_skewness_min,'String'));
-input_skewness_max=str2num(get(handles.input_skewness_max,'String'));
+input_activity_value=str2double(get(handles.input_dF_activity_value,'String'));
+input_activity_frames=str2double(get(handles.input_dF_activity_frames,'String'));
+input_baseline_stability=str2double(get(handles.input_baseline_stability,'String'));
+input_baseline_stability_percent=str2double(get(handles.input_baseline_stability_percent,'String'));
+input_baseline_window=str2double(get(handles.input_baseline_window,'String'));
+input_roundness=str2double(get(handles.input_roundness,'String'));
+input_oblongness=str2double(get(handles.input_oblongness,'String'));
+input_area_min=str2double(get(handles.input_area_min,'String'));
+input_area_max=str2double(get(handles.input_area_max,'String'));
+input_width_min=str2double(get(handles.input_width_min,'String'));
+input_width_max=str2double(get(handles.input_width_max,'String'));
+input_skewness_min=str2double(get(handles.input_skewness_min,'String'));
+input_skewness_max=str2double(get(handles.input_skewness_max,'String'));
 input_skewness_kurtosis_style=get(handles.input_skewness_kurtosis_style,'Value');
-input_kurtosis_min=str2num(get(handles.input_kurtosis_min,'String'));
-input_kurtosis_max=str2num(get(handles.input_kurtosis_max,'String'));
+input_kurtosis_min=str2double(get(handles.input_kurtosis_min,'String'));
+input_kurtosis_max=str2double(get(handles.input_kurtosis_max,'String'));
 
 %Convert sat value to frames if not frames already
 input_sat_style=get(handles.input_sat_value,'Value'); % 1 = percent, 2 = frames
 
 if input_sat_style==2
-    input_sat_value=str2num(get(handles.input_sat_value,'String'));
+    input_sat_value=str2double(get(handles.input_sat_value,'String'));
 else
-    input_sat_value=floor(str2num(get(handles.input_sat_value,'String'))/100*size(handles.ROI.C_or,2)); %Convert to number of frames
+    input_sat_value=floor(str2double(get(handles.input_sat_value,'String'))/100*size(handles.ROI.C_or,2)); %Convert to number of frames
 end
 
 
@@ -698,7 +698,7 @@ end
 borderline_style=get(handles.input_borderline_style,'Value'); %1 = percentage, 2 = stdev, 3 = MAD
 
 if borderline_style==1 %percentage
-    border_percent=str2num(get(handles.input_borderline_value,'String'))/100;
+    border_percent=str2double(get(handles.input_borderline_value,'String'))/100;
     
     border_activity_value=input_activity_value*(1-border_percent); %Treat as a minimum
     border_baseline_stability=input_baseline_stability*(1+border_percent); %Treat as a maximum
@@ -715,7 +715,7 @@ if borderline_style==1 %percentage
     border_sat_value=input_sat_value*(1+border_percent);
     
 elseif borderline_style==2 %stdev
-    border_std=str2num(get(handles.input_borderline_value,'String'));
+    border_std=str2double(get(handles.input_borderline_value,'String'));
     
     border_activity_value=input_activity_value; %MAD and STD can't be applied here
     border_baseline_stability=input_baseline_stability; %MAD and STD can't be applied here
@@ -740,7 +740,7 @@ elseif borderline_style==2 %stdev
     end
     
 elseif borderline_style==3 %MAD
-    border_mad=str2num(get(handles.input_borderline_value,'String'));
+    border_mad=str2double(get(handles.input_borderline_value,'String'));
     
     border_activity_value=input_activity_value; %MAD and STD can't be applied here
     border_baseline_stability=input_baseline_stability; %MAD and STD can't be applied here
@@ -1039,7 +1039,7 @@ F=handles.ROI.F_raw(handles.ROI.included_ROIs,:)'; %For legacy Portera Lab compa
 F_inferred_refined=handles.ROI.F_inferred(handles.ROI.included_ROIs,:); %Fitted data
 F_raw_refined=handles.ROI.F_raw(handles.ROI.included_ROIs,:); %Raw data
 S_or_refined=handles.ROI.S_or(handles.ROI.included_ROIs,:); %Deconvolved data
-%Z_F_refined=handles.ROI.Z_F(handles.ROI.included_ROIs,:); %Z-score data
+Z_mod_refined=handles.ROI.Z_mod(handles.ROI.included_ROIs,:); %Z-score data
 
 %CSV Export
 if csv_save
@@ -1049,8 +1049,8 @@ refined_filename=[handles.full_filepath(1:end-4) '_refined_fit.csv'];
 csvwrite(refined_filename,F_inferred_refined);
 refined_filename=[handles.full_filepath(1:end-4) '_refined_decon.csv'];
 csvwrite(refined_filename,S_or_refined);
-% refined_filename=[handles.full_filepath(1:end-4) '_refined_ZF.csv'];
-% csvwrite(refined_filename,Z_F_refined);
+refined_filename=[handles.full_filepath(1:end-4) '_refined_Zmod.csv'];
+csvwrite(refined_filename,Z_mod_refined);
 % refined_filename=[handles.full_filepath(1:end-4) '_refined_centers.csv'];
 % csvwrite(refined_filename,ROI_centers);
 end
@@ -1058,7 +1058,7 @@ end
 %MAT Export
 if mat_save
 refined_filename=[handles.full_filepath(1:end-4) '_refined.mat'];
-save(refined_filename,'F_inferred_refined','F_raw_refined','S_or_refined','F');
+save(refined_filename,'F_inferred_refined','F_raw_refined','S_or_refined','F','Z_mod_refined');
 end
 
 %XLSX Export
@@ -1067,7 +1067,7 @@ refined_filename=[handles.full_filepath(1:end-4) '_refined.xlsx'];
 xlswrite(refined_filename,F_raw_refined,'Raw');
 xlswrite(refined_filename,F_inferred_refined,'Fit');
 xlswrite(refined_filename,S_or_refined,'Deconvolved');
-% xlswrite(refined_filename,Z_F_refined,'Z_F');
+xlswrite(refined_filename,Z_mod_refined,'Z_mod');
 % xlswrite(refined_filename,ROI_centers,'Centers');
 end
 

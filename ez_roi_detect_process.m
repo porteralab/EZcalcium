@@ -216,7 +216,7 @@ end
 
 %-----End initialization of spatial components using greedyROI and HALS---
 if autoroi.refine_components==1 %Check if "Manual Initial Refinement" is selected in the GUI
-    [Ain,Cin,center] = manually_refine_components(Y,Ain,Cin,center,Cn,tau,options); %Launch manual refinement
+    [Ain,Cin,~] = manually_refine_components(Y,Ain,Cin,center,Cn,tau,options); %Launch manual refinement
 end
 
 %-------------Update spatial and temporal components-------------------
