@@ -152,33 +152,10 @@ save('autosave_ez_refine.mat','refine_roi');
     %--------Calculate Significant Activity-----------
     activity_value=str2double(get(handles.input_dF_activity_value,'string')); %get values from GUI
     activity_frames=str2double(get(handles.input_dF_activity_frames,'string')); %get values from GUI
-    significant_frames=zeros(roi_number,frames);
-    handles.ROI.active_frames=zeros(roi_number,frames);
-    handles.ROI.active_ROI=zeros(roi_number,1);
-    for i=1:roi_number %check if activity is above threshold
-        for j=1:frames
-            if handles.ROI.Z_mod(i,j)>activity_value
-                significant_frames(i,j)=1;
-            end
-        end
-    end
-    for i=1:roi_number %check for consecutive significant frames
-        for j=1:frames
-            significant_count=0;
-            if significant_frames(i,j)==1
-                significant_count=significant_count+1;
-                for k=1:activity_frames-1
-                    if ((j+k <= size(handles.ROI.Z_mod,2)) && (significant_frames(i,j+k)==1))
-                        significant_count=significant_count+1;
-                    end
-                end
-                if significant_count==activity_frames
-                    handles.ROI.active_frames(i:i+activity_frames-1,j)=1; %mark active frames with a value of 1
-                    handles.ROI.active_ROI(i)=1; %mark an ROI as having some level of activity above value and frame threshold
-                end
-            end
-        end
-    end
+    
+    significant_frames = handles.ROI.Z_mod > activity_value;
+    handles.ROI.active_ROI = max(movsum(significant_frames,activity_frames,2,'Endpoints','discard'),[],2) == activity_frames;
+
  %=====End Re-calculate data from load button===================
  
 for ROI=1:size(handles.ROI.F_raw,1)
@@ -436,33 +413,9 @@ if iscell(add_file)||ischar(add_file) %Checks to see if anything was selected
     %--------Calculate Significant Activity-----------
     activity_value=str2double(get(handles.input_dF_activity_value,'string')); %get values from GUI
     activity_frames=str2double(get(handles.input_dF_activity_frames,'string')); %get values from GUI
-    significant_frames=zeros(roi_number,frames);
-    handles.ROI.active_frames=zeros(roi_number,frames);
-    handles.ROI.active_ROI=zeros(roi_number,1);
-    for i=1:roi_number %check if activity is above threshold
-        for j=1:frames
-            if handles.ROI.Z_mod(i,j)>activity_value
-                significant_frames(i,j)=1;
-            end
-        end
-    end
-    for i=1:roi_number %check for consecutive significant frames
-        for j=1:frames
-            significant_count=0;
-            if significant_frames(i,j)==1
-                significant_count=significant_count+1;
-                for k=1:activity_frames-1
-                    if ((j+k <= size(handles.ROI.Z_mod,2)) && (significant_frames(i,j+k)==1))
-                        significant_count=significant_count+1;
-                    end
-                end
-                if significant_count==activity_frames
-                    handles.ROI.active_frames(i:i+activity_frames-1,j)=1; %mark active frames with a value of 1
-                    handles.ROI.active_ROI(j)=1; %mark an ROI as having some level of activity above value and frame threshold
-                end
-            end
-        end
-    end
+    
+    significant_frames = handles.ROI.Z_mod > activity_value;
+    handles.ROI.active_ROI = max(movsum(significant_frames,activity_frames,2,'Endpoints','discard'),[],2) == activity_frames;
     
     %Calculated Saturated Frames
     saturated_frames_value=max(handles.ROI.F_raw,[],1); %find maximum value in trace
