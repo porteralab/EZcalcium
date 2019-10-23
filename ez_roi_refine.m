@@ -121,8 +121,6 @@ function run_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-%This runs the motion correction
-
 refine_roi=parse_refine_roi(handles); %read GUI
 
 %Autosave
@@ -134,10 +132,10 @@ save('autosave_ez_refine.mat','refine_roi');
     frames=size(handles.ROI.F_raw,2); %calculate number of frames in data
     roi_number=size(handles.ROI.F_raw,1);
     
-    %User input sliding window number of frames for detecting baseline ====ADD BASELINE
+    %User input sliding window number of frames for detecting baseline ====
     baseline_window=str2double(get(handles.input_baseline_window,'string'));
     %calculate Z_mod
-    handles.ROI.Z_mod=ez_ZF(handles.ROI.F_raw',baseline_window)';
+    handles.ROI.Z_mod=ez_ZF(handles.ROI.F_raw,baseline_window);
     %First Frame End
     first_frame_start=1;
     first_frame_end=floor(str2double(get(handles.input_baseline_stability_percent,'string'))/100*frames);
@@ -147,9 +145,9 @@ save('autosave_ez_refine.mat','refine_roi');
     %Calculate First Baseline
     [~,first_baseline,~,~]=ez_ZF(handles.ROI.Z_mod(:,first_frame_start:first_frame_end),baseline_window);
     %Calculate Last Baseline
-    [~,last_baseline,~,~]=ez_ZF(handles.ROI.Z_mod(:,last_frame_start:last_frame_end),baseline_window);      
+    [~,last_baseline,~,~]=ez_ZF(handles.ROI.Z_mod(:,last_frame_start:last_frame_end),baseline_window);
     %Calculate Stability (difference in Z score of baselines)
-    handles.ROI.Baseline_stability=abs(first_baseline-last_baseline); 
+    handles.ROI.Baseline_stability=abs(first_baseline-last_baseline);
     
     %--------Calculate Significant Activity-----------
     activity_value=str2double(get(handles.input_dF_activity_value,'string')); %get values from GUI
@@ -170,13 +168,13 @@ save('autosave_ez_refine.mat','refine_roi');
             if significant_frames(i,j)==1
                 significant_count=significant_count+1;
                 for k=1:activity_frames-1
-                    if ((i+k <= size(handles.ROI.Z_mod,1)) && (significant_frames(i+k,j)==1))
+                    if ((j+k <= size(handles.ROI.Z_mod,2)) && (significant_frames(i,j+k)==1))
                         significant_count=significant_count+1;
                     end
                 end
                 if significant_count==activity_frames
-                    handles.ROI.active_frames(j,i:i+activity_frames-1)=1; %mark active frames with a value of 1
-                    handles.ROI.active_ROI(j)=1; %mark an ROI as having some level of activity above value and frame threshold
+                    handles.ROI.active_frames(i:i+activity_frames-1,j)=1; %mark active frames with a value of 1
+                    handles.ROI.active_ROI(i)=1; %mark an ROI as having some level of activity above value and frame threshold
                 end
             end
         end
@@ -421,7 +419,7 @@ if iscell(add_file)||ischar(add_file) %Checks to see if anything was selected
     %User input sliding window number of frames for detecting baseline ====ADD BASELINE
     baseline_window=str2double(get(handles.input_baseline_window,'string'));
     %calculate Z_mod
-    handles.ROI.Z_mod=ez_ZF(handles.ROI.F_raw',baseline_window)';
+    handles.ROI.Z_mod=ez_ZF(handles.ROI.F_raw,baseline_window);
     %First Frame End
     first_frame_start=1;
     first_frame_end=floor(str2double(get(handles.input_baseline_stability_percent,'string'))/100*frames);
@@ -429,9 +427,9 @@ if iscell(add_file)||ischar(add_file) %Checks to see if anything was selected
     last_frame_start=frames-first_frame_end+1;
     last_frame_end=frames;
     %Calculate First Baseline
-    [~,first_baseline,~,~]=ez_ZF(handles.ROI.Z_mod(:,first_frame_start:first_frame_end)',baseline_window);   
+    [~,first_baseline,~,~]=ez_ZF(handles.ROI.Z_mod(:,first_frame_start:first_frame_end),baseline_window);   
     %Calculate Last Baseline
-    [~,last_baseline,~,~]=ez_ZF(handles.ROI.Z_mod(:,last_frame_start:last_frame_end)',baseline_window);      
+    [~,last_baseline,~,~]=ez_ZF(handles.ROI.Z_mod(:,last_frame_start:last_frame_end),baseline_window);      
     %Calculate Stability (difference in Z score of baselines)
     handles.ROI.Baseline_stability=abs(first_baseline-last_baseline); 
     
@@ -454,12 +452,12 @@ if iscell(add_file)||ischar(add_file) %Checks to see if anything was selected
             if significant_frames(i,j)==1
                 significant_count=significant_count+1;
                 for k=1:activity_frames-1
-                    if ((i+k <= size(handles.ROI.Z_mod,1)) && (significant_frames(i+k,j)==1))
+                    if ((j+k <= size(handles.ROI.Z_mod,2)) && (significant_frames(i,j+k)==1))
                         significant_count=significant_count+1;
                     end
                 end
                 if significant_count==activity_frames
-                    handles.ROI.active_frames(j,i:i+activity_frames-1)=1; %mark active frames with a value of 1
+                    handles.ROI.active_frames(i:i+activity_frames-1,j)=1; %mark active frames with a value of 1
                     handles.ROI.active_ROI(j)=1; %mark an ROI as having some level of activity above value and frame threshold
                 end
             end
