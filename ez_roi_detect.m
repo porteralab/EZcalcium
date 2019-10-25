@@ -794,7 +794,7 @@ end
 set(handles.check_merge,'Value',autoroi.check_merge);
 
 %Display Center
-set(handles.use_classifier,'Value',autoroi.check_center);
+set(handles.use_classifier,'Value',autoroi.use_classifier);
 
 %Save PDF
 set(handles.check_pdf,'Value',autoroi.check_pdf);
