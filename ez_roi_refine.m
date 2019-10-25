@@ -408,7 +408,7 @@ if iscell(add_file)||ischar(add_file) %Checks to see if anything was selected
     %Calculate Last Baseline
     [~,last_baseline,~,~]=ez_ZF(handles.ROI.Z_mod(:,last_frame_start:last_frame_end),baseline_window);      
     %Calculate Stability (difference in Z score of baselines)
-    handles.ROI.Baseline_stability=abs(first_baseline-last_baseline); 
+    handles.ROI.Baseline_stability=abs(first_baseline-last_baseline);
     
     %--------Calculate Significant Activity-----------
     activity_value=str2double(get(handles.input_dF_activity_value,'string')); %get values from GUI

@@ -205,59 +205,56 @@ drawnow; %Update GUI
 [Ain, Cin, bin, fin, center] = initialize_components(Y, K, tau, options, P); %Initilize components
 Cn =  correlation_image(Y); %max(Y,[],3); %std(Y,[],3); %image statistic (only for display purposes)
 
-%----------Generate figure of found component centers----------------
-if autoroi.check_center==1 %Check if "Display ROI Centers" is selected in the GUI
-    figure;imagesc(Cn); %Open new figure, display correlation image
-    axis equal; axis tight; hold all; %Set axes properties
-    scatter(center(:,2),center(:,1),'mo'); %Draw plot of ROI centers onto image
-    title('Center of ROIs found from initialization algorithm'); %Figure title
-    drawnow; %Update figure
-end
-
 %-----End initialization of spatial components using greedyROI and HALS---
 if autoroi.refine_components==1 %Check if "Manual Initial Refinement" is selected in the GUI
     [Ain,Cin,~] = manually_refine_components(Y,Ain,Cin,center,Cn,tau,options); %Launch manual refinement
 end
 
 %-------------Update spatial and temporal components-------------------
+
 set(handles.status_bar, 'String', 'Updating components');
 drawnow; %Update GUI
-Yr = reshape(Y,d,T); clear Y
-[A,b,Cin] = update_spatial_components(Yr,Cin,fin,[Ain,bin],P,options); %Update spatial components
+Yr = reshape(Y,d,T);
+[A,b,Cin] = update_spatial_components(Yr,Cin,fin,[Ain,bin],P,options);
 P.p = 0;    %Turn off autoregression dynamics temporarily for speed
-[C,f,P,S,~] = update_temporal_components(Yr,A,b,Cin,fin,P,options); %Update temporal components
+[C,f,P,S,YrA] = update_temporal_components(Yr,A,b,Cin,fin,P,options);
 %-----------End update spatial and temporal components-----------------
 
 %---------------Classify and Select-------------
-%Currently unused, but provided if you want to integrate it yourself
-
-% % classify components
-% rval_space = classify_comp_corr(Y,A,C,b,f,options);
-% ind_corr = rval_space > options.space_thresh;           % components that pass the correlation test
-%                                         % this test will keep processes
-% % event exceptionality
-%
-% fitness = compute_event_exceptionality(C+YrA,options.N_samples_exc,options.robust_std);
-% ind_exc = (fitness < options.min_fitness);
-%
-% % select components
-%
-% ind_cnn = true(size(A,2),1);
-%
-% keep = (ind_corr | ind_cnn) & ind_exc;
-%
-% % display kept and discarded components
-% A_keep = A(:,keep);
-% C_keep = C(keep,:);
-%
-% if autoroi.show_kept==1
-% figure;
-%     subplot(121); montage(extract_patch(A(:,keep),[d1,d2],[30,30]),'DisplayRange',[0,0.15]);
-%         title('Kept Components');
-%     subplot(122); montage(extract_patch(A(:,~keep),[d1,d2],[30,30]),'DisplayRange',[0,0.15])
-%         title('Discarded Components');
-% end
-%
+if autoroi.use_classifier==1
+    set(handles.status_bar, 'String', 'Classifying');
+    drawnow; %Update GUI
+    % classify components
+    rval_space = classify_comp_corr(Y,A,C,b,f,options);
+    ind_corr = rval_space > options.space_thresh;           % components that pass the correlation test
+    % this test will keep processes
+    
+    % further classification with cnn_classifier
+    try  % matlab 2017b or later is needed
+        [ind_cnn,~] = cnn_classifier(A,[d1,d2],'cnn_model',options.cnn_thr);
+    catch
+        ind_cnn = true(size(A,2),1);                        % components that pass the CNN classifier
+    end
+    
+    % event exceptionality
+    
+    fitness = compute_event_exceptionality(C+YrA,options.N_samples_exc,options.robust_std);
+    ind_exc = (fitness < options.min_fitness);
+    
+    % select components
+    
+    keep = (ind_corr | ind_cnn) & ind_exc;
+    
+    % display kept and discarded components
+    figure;
+    subplot(121); montage(extract_patch(A(:,keep),[d1,d2],[30,30]),'DisplayRange',[0,0.15]);
+    title('Kept Components');
+    subplot(122); montage(extract_patch(A(:,~keep),[d1,d2],[30,30]),'DisplayRange',[0,0.15])
+    title('Discarded Components');
+    
+    A = A(:,keep);
+    C = C(keep,:);
+end
 
 %------------------------Merge found components------------------------
 set(handles.status_bar, 'String', 'Merging found components'); %Update status bar

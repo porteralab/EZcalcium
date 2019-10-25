@@ -22,7 +22,7 @@ function varargout = ez_roi_detect(varargin)
 
 % Edit the above text to modify the response to help ez_roi_detect
 
-% Last Modified by GUIDE v2.5 26-Jul-2019 14:02:23
+% Last Modified by GUIDE v2.5 24-Oct-2019 16:42:53
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -707,7 +707,7 @@ autoroi.check_map=get(handles.check_map,'Value');
 autoroi.check_merge=get(handles.check_merge,'Value');
 
 %Display Component Centers
-autoroi.check_center=get(handles.check_center,'Value');
+autoroi.use_classifier=get(handles.use_classifier,'Value');
 
 %Save PDF
 autoroi.check_pdf=get(handles.check_pdf,'Value');
@@ -794,7 +794,7 @@ end
 set(handles.check_merge,'Value',autoroi.check_merge);
 
 %Display Center
-set(handles.check_center,'Value',autoroi.check_center);
+set(handles.use_classifier,'Value',autoroi.check_center);
 
 %Save PDF
 set(handles.check_pdf,'Value',autoroi.check_pdf);
@@ -1143,13 +1143,13 @@ function check_mat_Callback(hObject, eventdata, handles)
 % Hint: get(hObject,'Value') returns toggle state of check_mat
 
 
-% --- Executes on button press in check_center.
-function check_center_Callback(hObject, eventdata, handles)
-% hObject    handle to check_center (see GCBO)
+% --- Executes on button press in use_classifier.
+function use_classifier_Callback(hObject, eventdata, handles)
+% hObject    handle to use_classifier (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hint: get(hObject,'Value') returns toggle state of check_center
+% Hint: get(hObject,'Value') returns toggle state of use_classifier
 
 
 % --- Executes on button press in check_pdf.
@@ -1305,7 +1305,7 @@ function pushbutton23_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton23 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-msgbox("""Display Components"" shows extracted raw fluorescence data, the inferred trace generated, and the ROI shape and location.","Help",'replace')
+msgbox("""Display ROI Contours"" generates a map with all the ROI boundaries, each labeled with the same ROI number as was used in the data.","Help",'replace')
 
 
 % --- Executes on button press in pushbutton24.
@@ -1313,7 +1313,7 @@ function pushbutton24_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton24 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-msgbox("""Display ROI Centers"" generates a map showing the centers of all ROIs following initialization.","Help",'replace')
+msgbox("""Refine Detection with Classifier"" uses correlation test and a CNN-based neuron classifier to exclude non-neuron ROIs.","Help",'replace')
 
 
 % --- Executes on button press in pushbutton25.
@@ -1321,7 +1321,7 @@ function pushbutton25_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton25 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-msgbox("""Display ROI Map"" generates a map with all the ROI boundaries, each labeled with the same ROI number as was used in the data.","Help",'replace')
+msgbox("""Display ROI Browser"" shows extracted raw fluorescence data, the inferred trace generated, and the ROI shape and location.","Help",'replace')
 
 
 % --- Executes on button press in pushbutton26.
