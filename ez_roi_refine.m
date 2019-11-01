@@ -522,11 +522,6 @@ function view_ROI_function(hObject, eventdata, handles)
 
 ROI_number=get(handles.ROI_list,'Value'); %Get the number of the selected ROI
 
-%Display Map
-axes(handles.whole_field); %Select whole field axes
-% map=im2double(handles.ROI.Cn);
-% image(map)
-
 %Display Isolated ROI
 axes(handles.isolated_ROI); %Select whole field axes
 
@@ -585,6 +580,7 @@ set(gca,'xticklabel',[])
 set(gca,'ytick',[])
 set(gca,'yticklabel',[])
 set(gca,'box','off')
+hold off
 
 %Display Isolated ROI
 axes(handles.isolated_ROI);
