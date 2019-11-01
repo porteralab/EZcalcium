@@ -109,7 +109,7 @@ supported_files={'*.tif; *.tiff; *.mat; *.avi;',...
     '*.*','All Files'};
 
 %[add_file,add_filepath]=uigetfile('*.tif','Choose file(s) to be processed.','MultiSelect','on');
-[add_file,add_filepath,test]=uigetfile(supported_files,'Choose file(s) to be processed.','MultiSelect','on');
+[add_file,add_filepath]=uigetfile(supported_files,'Choose file(s) to be processed.','MultiSelect','on');
 
 if iscell(add_file)||ischar(add_file) %Checks to see if anything was selected
     
@@ -984,7 +984,7 @@ function pushbutton18_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton18 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-msgbox("""Blocks"" refers to the number of blocks (spread vertically) that the image will be divided into prior to alignment.  To register the image as a single block, enter a ""Blocks"" value of 1.  Generally, using a larger number of blocks processes faster than using fewer blocks, due to the ease of aligning several smaller blocks instead of larger more complex images. However, it may also introduce artifacts on otherwise steady videos if blocks are too numerous. For example, a Blocks value of 8 for a 256x128 will break down into a total of 64 32x16 blocks in an 8x8 configuration. A recommended value for ""Blocks"" would be less than the square root of the number of pixel rows (video height).","Help",'replace')
+msgbox("""Blocks"" refers to the number of blocks (spread vertically) that the image will be divided into prior to alignment.  To register the image as a single block, enter a ""Blocks"" value of 1.  Generally, using a larger number of blocks processes faster than using fewer blocks, due to the ease of aligning several smaller blocks instead of larger more complex images. However, it may also introduce artifacts on otherwise steady videos if blocks are too numerous. For example, a Blocks value of 8 for a 256x128 movie will break it down into eight 256x16 blocks. A recommended value for ""Blocks"" would be less than the square root of the number of pixel rows (video height).","Help",'replace')
 
 
 % --- Executes on button press in pushbutton19.

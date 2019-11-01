@@ -3,7 +3,6 @@ function [progress]=ez_roi_detect_process(fullvidfile,autoroi,handles,progress)
 %------------------------------Load video----------------------------------
 set(handles.status_bar, 'String', 'Loading Video'); %Update status bar
 drawnow; %Update GUI
-addpath(genpath('utilities')); %Make sure CaImAn "utilities" folder is set in paths
 extension_index=strfind(fullvidfile,'.'); %Find periods in file name
 extension=fullvidfile(extension_index(end)+1:end); %Find the location of the last period in the file name
 vidfile_name=fullvidfile(1:extension_index-1); %Extract video file name without extension
@@ -293,6 +292,7 @@ drawnow; %Update GUI
 
 % Calculate traces to be saved
 [F_raw,F_inferred] = construct_traces(Yr,A_or,C_or,b2,f2,options);
+S_deconv = S_or;
 
 %------------ROI Map Plotting---------------
 figure; %Open a new figure
@@ -335,7 +335,7 @@ drawnow; %Update GUI
 
 %------Save .mat file (workspace)----
 progress.newfile=[vidfile_name '_roi' '.mat']; %.mat file name passed back to GUI
-save([vidfile_name '_roi'],'A_or','C_or','S_or','P_or','Cn','F_raw','F_inferred','options','autoroi');
+save([vidfile_name '_roi'],'Cn','A_or','C_or','S_or','P_or','F_raw','F_inferred','S_deconv','options','autoroi');
 
 %-----------Save .csv files---------
 if autoroi.check_csv==1 %Check if "Export to .csv" is selected in GUI
