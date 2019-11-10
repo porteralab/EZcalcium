@@ -264,27 +264,6 @@ function help_Callback(hObject, eventdata, handles)
 filepath = fileparts([mfilename('fullpath') '.m']);
 system([filepath '/HELP.pdf']); %Load documentation
 
-function status_bar_Callback(hObject, eventdata, handles)
-% hObject    handle to status_bar (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of status_bar as text
-%        str2double(get(hObject,'String')) returns contents of status_bar as a double
-
-
-% --- Executes during object creation, after setting all properties.
-function status_bar_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to status_bar (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
 
 % --- Executes on button press in load_settings_button.
 function load_settings_button_Callback(hObject, eventdata, handles)
@@ -1008,10 +987,6 @@ function export_Callback(hObject, eventdata, handles)
 csv_save=get(handles.box_csv,'value');
 mat_save=get(handles.box_mat,'value');
 xlsx_save=get(handles.box_xlsx,'value');
-eps_save=get(handles.box_eps,'value');
-fig_save=get(handles.box_fig,'value');
-pdf_save=get(handles.box_pdf,'value');
-
 
 ROI_list=get(handles.ROI_list,'String');
 %=====Select only the ROIs that have not been excluded=====
@@ -1702,33 +1677,6 @@ function save_settings_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA).
 
-% --- Executes on button press in box_eps.
-function box_eps_Callback(hObject, eventdata, handles)
-% hObject    handle to box_eps (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hint: get(hObject,'Value') returns toggle state of box_eps
-
-
-% --- Executes on button press in box_pdf.
-function box_pdf_Callback(hObject, eventdata, handles)
-% hObject    handle to box_pdf (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hint: get(hObject,'Value') returns toggle state of box_pdf
-
-
-% --- Executes on button press in box_fig.
-function box_fig_Callback(hObject, eventdata, handles)
-% hObject    handle to box_fig (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hint: get(hObject,'Value') returns toggle state of box_fig
-
-
 % --- Executes on button press in box_csv.
 function box_csv_Callback(hObject, eventdata, handles)
 % hObject    handle to box_csv (see GCBO)
@@ -1831,15 +1779,6 @@ refine_roi.box_mat=get(handles.box_mat,'Value');
 %Export XLSX
 refine_roi.box_xlsx=get(handles.box_xlsx,'Value');
 
-%Export EPS
-refine_roi.box_eps=get(handles.box_eps,'Value');
-
-%Export FIG
-refine_roi.box_fig=get(handles.box_fig,'Value');
-
-%Export PDF
-refine_roi.box_pdf=get(handles.box_pdf,'Value');
-
 %============Read Input Boxes===========
 %dF_activity_value
 refine_roi.input_dF_activity_value=get(handles.input_dF_activity_value,'String');
@@ -1924,15 +1863,6 @@ set(handles.box_mat,'Value',refine_roi.box_mat);
 
 %Export XLSX
 set(handles.box_xlsx,'Value',refine_roi.box_xlsx);
-
-%Export EPS
-set(handles.box_eps,'Value',refine_roi.box_eps);
-
-%Export FIG
-set(handles.box_fig,'Value',refine_roi.box_fig);
-
-%Export PDF
-set(handles.box_pdf,'Value',refine_roi.box_pdf);
 
 %============Write Input Boxes===========
 %dF_activity_value

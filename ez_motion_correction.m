@@ -631,7 +631,7 @@ function initial_batch_size_help_Callback(hObject, eventdata, handles)
 % hObject    handle to initial_batch_size_help (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-msgbox("""Initial Batch Size"" defines the number of frames from the beginning used for calculating the first template for motion correction.","Help",'replace')
+msgbox("""Initial Batch Size"" defines the number of frames from the beginning used for calculating the initial template.","Help",'replace')
 
 
 % --- Executes on button press in bin_width_help.
@@ -639,7 +639,7 @@ function bin_width_help_Callback(hObject, eventdata, handles)
 % hObject    handle to bin_width_help (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-msgbox("Motion Correction runs through the data in bins. ""Bin Width"" defines the number of frames of each bin.","Help",'replace')
+msgbox("""Bin Width"" defines the number of frames of each bin, over which the registered frames are averaged to update the template.","Help",'replace')
 
 
 % --- Executes on button press in settings_help.
