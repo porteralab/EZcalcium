@@ -1,8 +1,6 @@
 function [progress]=ez_roi_detect_process(fullvidfile,autoroi,handles,progress)
 
 %------------------------------Load video----------------------------------
-set(handles.status_bar, 'String', 'Loading Video'); %Update status bar
-drawnow; %Update GUI
 extension_index=strfind(fullvidfile,'.'); %Find periods in file name
 extension=fullvidfile(extension_index(end)+1:end); %Find the location of the last period in the file name
 vidfile_name=fullvidfile(1:extension_index-1); %Extract video file name without extension
@@ -16,8 +14,6 @@ if strcmpi(extension,'tif') || strcmpi(extension,'tiff')
     %     %Convert certain types of Tiff files to be compatible
     %     if isfield(vid_info,'StripOffsets') %Check if formatted correctly
     %         if isa(vid_info(1).StripOffsets,'double') %check if a double
-    %             set(handles.status_bar, 'String', 'Converting Tiff'); %Update status bar
-    %             drawnow; %Update GUI
     %             for i=1:length(vid_info)
     %                 vid_info(i).StripOffsets=sum(vid_info(i).StripOffsets);
     %             end
@@ -33,25 +29,11 @@ if strcmpi(extension,'tif') || strcmpi(extension,'tiff')
     if strcmp(vid_info(1).Compression,'Uncompressed') %Loads uncompressed videos
         Y=loadtiff(fullvidfile); %Read uncompressed Tiff
         num_frames=size(Y,3); %Extract number of frames
-        if autoroi.frames_box==1 %Check if all frames being read
-            start_frame=1; %Start at frame 1
-            end_frame=num_frames; %Detect number of frames
-        else
-            start_frame=str2double(autoroi.frames_start); %Read start frame from GUI
-            end_frame=str2double(autoroi.frames_end); %Read end frame from GUI
-        end
-        Y=Y(:,:,start_frame:end_frame); %Trim matrix to desired size
         
     else %Loads Compressed videos
-        if autoroi.frames_box==1 %Check if all frames being read
-            start_frame=1; %Start at frame 1
-            num_frames=numel(vid_info); %Detect number of frames
-            frames_to_read=num_frames; %Set frames to read to all frames
-        else
-            start_frame=str2double(autoroi.frames_start); %Set start frame based on GUI
-            frames_to_read=str2double(autoroi.frames_end)-str2double(autoroi.frames_start)+1; %Calculate number of frames to read
-            num_frames=frames_to_read; %Set number of frames to number of frames read
-        end
+        start_frame=1; %Start at frame 1
+        num_frames=numel(vid_info); %Detect number of frames
+        frames_to_read=num_frames; %Set frames to read to all frames
         Y=zeros(vid_height,vid_width,frames_to_read); %Makes zero matrix for speed
         parfor i = 1:frames_to_read %Loads every frame of the video
             Y(:,:,i)=imread(fullvidfile,i+start_frame-1,'info',vid_info); %Read frames in video
@@ -77,14 +59,6 @@ elseif strcmpi(extension,'mat')
     largest_variable_name=check_mat(largest_variable,1).name; %Name of largest variable
     Y=load(fullvidfile,largest_variable_name); %Loads largest variable
     Y=Y.(largest_variable_name); %Convert structure to matrix
-    if autoroi.frames_box==1 %Check if all frames being read
-        start_frame=1; %Start at frame 1
-        end_frame=size(Y,3); %End at last frame
-    else
-        start_frame=str2double(autoroi.frames_start); %Set start frame from GUI
-        end_frame=str2double(autoroi.frames_end); %Set end frame from GUI
-    end
-    Y=Y(:,:,start_frame:end_frame); %Trim matrix to desired size
     
     %-------------------AVI File-----------------------
 elseif strcmpi(extension,'avi')
@@ -93,13 +67,8 @@ elseif strcmpi(extension,'avi')
     vid_width=videoObj.Width; %Sets width
     frame_rate= videoObj.FrameRate; %Sets frame rate
     num_frames = ceil(videoObj.FrameRate*videoObj.Duration); %Calculate number of frames
-    if autoroi.frames_box==1 %check if all frames being read
-        start_frame=1; %Start at frame one
-        frames_to_read=num_frames; %Read until the last frame
-    else
-        start_frame=str2double(autoroi.frames_start); %Set start frame from GUI
-        frames_to_read=str2double(autoroi.frames_end)-str2double(autoroi.frames_start)+1; %Calculate number of frames to read based on GUI
-    end
+    start_frame=1; %Start at frame one
+    frames_to_read=num_frames; %Read until the last frame
     Y=zeros(vid_height,vid_width,frames_to_read); %Makes zero matrix for speed
     for i = 1:frames_to_read %Loads every frame of the video
         videoObj.CurrentTime=(start_frame+i-2)/frame_rate; %Step forward one frame at a time
@@ -131,8 +100,6 @@ d = d1*d2; %Calculate total number of pixels
 %===========================End Load Video=================================
 
 %===========================Set Parameters=================================
-set(handles.status_bar, 'String', 'Initializing parameters'); %Update status bar
-drawnow; %Update GUI
 K = str2double(autoroi.input_components); %Check number of components to be found
 tau = round(str2double(autoroi.input_kernel)/2); %Std of gaussian kernel (size of neuron)
 p = autoroi.menu_regression-1; %From "Autoregression" in GUI. Order of autoregressive system (p = 0 no dynamics, p=1 just decay, p = 2, both rise and decay)
@@ -193,14 +160,10 @@ options = CNMFSetParms(...                                          %Check CNMFS
 %     'eta',weight_time,...                                           %Relative weight of temporal components
 %     'beta',weight_space,...                                         %Relative weight of spatial components
 
-
-%options.method2=method;    %Set method for foopsi %Is this still used?
 [P,Y] = preprocess_data(Y,p,options); %Data pre-processing
 %=============================End Set Parameters========================
 
 %============================Extract Components=========================
-set(handles.status_bar, 'String', 'Init. spatial components'); %Update status bar
-drawnow; %Update GUI
 [Ain, Cin, bin, fin, center] = initialize_components(Y, K, tau, options, P); %Initilize components
 Cn =  correlation_image(Y); %max(Y,[],3); %std(Y,[],3); %image statistic (only for display purposes)
 
@@ -210,9 +173,6 @@ if autoroi.refine_components==1 %Check if "Manual Initial Refinement" is selecte
 end
 
 %-------------Update spatial and temporal components-------------------
-
-set(handles.status_bar, 'String', 'Updating components');
-drawnow; %Update GUI
 Yr = reshape(Y,d,T);
 [A,b,Cin] = update_spatial_components(Yr,Cin,fin,[Ain,bin],P,options);
 P.p = 0;    %Turn off autoregression dynamics temporarily for speed
@@ -221,8 +181,7 @@ P.p = 0;    %Turn off autoregression dynamics temporarily for speed
 
 %---------------Classify and Select-------------
 if autoroi.use_classifier==1
-    set(handles.status_bar, 'String', 'Classifying');
-    drawnow; %Update GUI
+
     % classify components
     rval_space = classify_comp_corr(Y,A,C,b,f,options);
     ind_corr = rval_space > options.space_thresh;           % components that pass the correlation test
@@ -256,28 +215,7 @@ if autoroi.use_classifier==1
 end
 
 %------------------------Merge found components------------------------
-set(handles.status_bar, 'String', 'Merging found components'); %Update status bar
-drawnow; %Update GUI
-[Am,Cm,K_m,merged_ROIs,Pm,~] = merge_components(Yr,A,b,C,f,P,S,options); %Merge similar components
-
-%------------Generate merging example-------------
-if and(autoroi.check_merge, ~isempty(merged_ROIs)) %Check if "Display Merging Example" is selected in GUI and that at least two components were merged
-    i = 1; %Take the first merged ROI for an example
-    ln = length(merged_ROIs{i}); %Check size necessary for figure
-    figure; %Open new figure
-    set(gcf,'Position',[300,300,(ln+2)*300,300]); %Set figure size
-    for j = 1:ln %For all the components that were merged
-        subplot(1,ln+2,j); imagesc(reshape(A(:,merged_ROIs{i}(j)),d1,d2)); %Plot individual components
-        title(sprintf('Component %i',j),'fontsize',16,'fontweight','bold'); axis equal; axis tight; %Label components
-    end
-    subplot(1,ln+2,ln+1); imagesc(reshape(Am(:,K_m-length(merged_ROIs)+i),d1,d2)); %Plot merged component
-    title('Merged Component','fontsize',16,'fontweight','bold');axis equal; axis tight; %Label merged component
-    subplot(1,ln+2,ln+2); %Show temporal component in subplot
-    plot(1:T,(diag(max(C(merged_ROIs{i},:),[],2))\C(merged_ROIs{i},:))'); %Plot temporal component
-    hold all; plot(1:T,Cm(K_m-length(merged_ROIs)+i,:)/max(Cm(K_m-length(merged_ROIs)+i,:)),'--k') %Plot temporal component
-    title('Temporal Components','fontsize',16,'fontweight','bold') %Label temporal component
-    drawnow; %Update figure
-end
+[Am,Cm,~,~,Pm,~] = merge_components(Yr,A,b,C,f,P,S,options); %Merge similar components
 
 %---------------Update components again--------------------
 Pm.p=p; %Restore autoregression dynamics value
@@ -285,8 +223,6 @@ Pm.p=p; %Restore autoregression dynamics value
 [C2,f2,P2,S2,~] = update_temporal_components(Yr,A2,b2,C2,f,Pm,options); %Update temporal components
 
 %===============================Plotting================================
-set(handles.status_bar, 'String', 'Plotting components'); %Update status bar
-drawnow; %Update GUI
 
 [A_or,C_or,S_or,P_or] = order_ROIs(A2,C2,S2,P2); %Reorder ROIs
 
@@ -295,59 +231,18 @@ drawnow; %Update GUI
 S_deconv = S_or;
 
 %------------ROI Map Plotting---------------
-figure; %Open a new figure
-plot_contours(A_or,Cn,options,1); %Run calculations for plotting an ROI map. One is automatically opened, but can be closed so that the matrix Coor is still generated.
-if autoroi.check_map==1 %Check if "Display ROI Map" has been selected in the GUI
-    if get(handles.check_pdf,'Value')==1 %Check if "Save PDFs" has been selected in the GUI
-        fig=gcf; %Target the current figure
-        set(fig,'Position',[680 558 900 1200]) %Set the size of the figure to be exported
-        print(fig,[vidfile_name '_map.pdf'],'-bestfit','-dpdf') %Export the figure to PDF
-        if autoroi.open_pdf==1 %Check if "Open PDFs" has been selected in the GUI
-            winopen([vidfile_name '_map.pdf']) %Open the newly-created PDF
-        end
-        close(fig) %Close the figure window
-    end
-else %If no ROI maps are desired
-    fig=gcf; %Target the current figure
-    close(fig) %Close the figure window
-end
+figure;
+plot_contours(A_or,Cn,options,1);
 
 %-----------Display Contours----------------
 if autoroi.check_contours==1 %Check if "Display Contours" has been selected in the GUI
     plot_components_GUI(Yr,A_or,C_or,b2,f2,Cn,options); %Plot individual components
 end
 
-%-------------PDF Generation---------------
-open_pdf=get(handles.open_pdf,'Value'); %Check if "Open PDFs" has been selected in the GUI, to be passed to plotting functions
-if get(handles.check_pdf,'Value')==1 %Check if "Save PDFs" has been selected in the GUI
-    dF_filename=[vidfile_name '_dF']; %dF/F plots name
-    ez_multiplot(F_inferred',10,dF_filename,1,'Frame',1,'dF/F',1,open_pdf); %Generate and save dF/F plots
-    if p>0 %Only export rate if using dynamics
-        spike_filename=[vidfile_name '_rate']; %Firing rate plots name
-        ez_multiplot(S_or',10,spike_filename,1,'Frame',1,'Rate',1,open_pdf); %Generate and save firing rate plots
-    end
-end
-%===========================End plotting================================
-
-%=============================Save data=================================
-set(handles.status_bar, 'String', 'Saving data'); %Update status bar
-drawnow; %Update GUI
-
 %------Save .mat file (workspace)----
-progress.newfile=[vidfile_name '_roi' '.mat']; %.mat file name passed back to GUI
+progress.newfile = [vidfile_name '_roi' '.mat']; %.mat file name passed back to GUI
 save([vidfile_name '_roi'],'Cn','A_or','C_or','S_or','P_or','F_raw','F_inferred','S_deconv','options','autoroi');
 
-%-----------Save .csv files---------
-if autoroi.check_csv==1 %Check if "Export to .csv" is selected in GUI
-    csvwrite([vidfile_name '_roi_dF'],full(F_inferred')); %Write dF/F csv
-    if p > 0 %Only export rate if using dynamics
-        csvwrite([vidfile_name '_roi_rate'],full(S_or')); %Write rate csv
-    end
-    csvwrite([vidfile_name '_roi_raw'],F_raw'); %Write raw F data csv
-end
-set(handles.status_bar, 'String', 'ROI Detection Complete!'); %Update status bar
-drawnow; %Update GUI
-%=========================End save data==================================
 end
 
 function [F_raw,F_inferred] = construct_traces(Y,A,C,b,f,options)

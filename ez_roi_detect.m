@@ -67,12 +67,12 @@ autosave_file='autosave_ez_autoroi.mat'; %Name autosave file
 
 %Check if autoload exists
 if exist('autosave_ez_autoroi.mat','file')==2 %Checks for autosave file
-    load('autosave_ez_autoroi.mat'); %loads file into workspace
+    load('autosave_ez_autoroi.mat','autoroi'); %loads file into workspace
     write_autoroi(handles,autoroi,2) %Load settings into GUI
 else
     ez_autoload_fail(autosave_file) %Runs dialog box to find and move an autoload file
     if exist('autosave_ez_autoroi.mat','file')==2 %If no autoload selected, create default
-        load('autosave_ez_autoroi.mat'); %loads file into workspace
+        load('autosave_ez_autoroi.mat','autoroi'); %loads file into workspace
         %Check if valid save file
         if exist('autoroi','var')~=1
             warning_text='The selected file is not a valid settings file.';
@@ -236,14 +236,6 @@ end
 %Get all file names
 list_strings=get(handles.processed_list,'String');
 
-%Checks if anything is in the selected space
-if isempty(list_strings)==1
-    return
-else
-    set(handles.status_bar, 'String', 'Opening selected file');
-    drawnow;
-end
-
 %Checks if only one value is listed in list
 if size (list_strings,1)==1
     list_cell{1,1}=list_strings; %Converts single value reading to be in single cell
@@ -261,8 +253,7 @@ file_string=cellstr(list_cell{list_position});
 assignin('base','loadfile',file_string{1})
 evalin('base','load(loadfile)');
 evalin('base','clear loadfile');
-set(handles.status_bar, 'String', 'Data Loaded into Workspace');
-drawnow;
+
 
 % --- Executes on button press in clear_button.
 function clear_button_Callback(hObject, eventdata, handles)
@@ -303,8 +294,6 @@ progress.time_remaining=0; %estimated time remaining
 
 progress.tic=tic; %mark start of motion correction process
 
-progress.status_bar=[];
-
 for i=1:file_num
     progress.current_file=i; %Marks current file number
     
@@ -340,97 +329,6 @@ function help_button_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 filepath = fileparts([mfilename('fullpath') '.m']);
 system([filepath '/HELP.pdf']); %Load documentation
-
-
-function overall_progress_Callback(hObject, eventdata, handles)
-% hObject    handle to overall_progress (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of overall_progress as text
-%        str2double(get(hObject,'String')) returns contents of overall_progress as a double
-
-
-% --- Executes during object creation, after setting all properties.
-function overall_progress_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to overall_progress (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
-
-function time_remaining_Callback(hObject, eventdata, handles)
-% hObject    handle to time_remaining (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of time_remaining as text
-%        str2double(get(hObject,'String')) returns contents of time_remaining as a double
-
-
-% --- Executes during object creation, after setting all properties.
-function time_remaining_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to time_remaining (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
-
-function status_bar_Callback(hObject, eventdata, handles)
-% hObject    handle to status_bar (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of status_bar as text
-%        str2double(get(hObject,'String')) returns contents of status_bar as a double
-
-
-% --- Executes during object creation, after setting all properties.
-function status_bar_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to status_bar (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
-
-function file_progress_Callback(hObject, eventdata, handles)
-% hObject    handle to file_progress (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of file_progress as text
-%        str2double(get(hObject,'String')) returns contents of file_progress as a double
-
-
-% --- Executes during object creation, after setting all properties.
-function file_progress_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to file_progress (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
 
 
 % --- Executes on button press in load_settings_button.
@@ -474,7 +372,6 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 
-
 function input_merge_thresh_Callback(hObject, eventdata, handles)
 % hObject    handle to input_merge_thresh (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -497,39 +394,6 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 
-
-function edit2_Callback(hObject, eventdata, handles)
-% hObject    handle to edit2 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of edit2 as text
-%        str2double(get(hObject,'String')) returns contents of edit2 as a double
-
-
-% --- Executes during object creation, after setting all properties.
-function edit2_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to edit2 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
-% --- Executes on button press in checkbox1.
-function checkbox1_Callback(hObject, eventdata, handles)
-% hObject    handle to checkbox1 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hint: get(hObject,'Value') returns toggle state of checkbox1
-
-
-
 function input_components_Callback(hObject, eventdata, handles)
 % hObject    handle to input_components (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -546,70 +410,6 @@ function input_components_CreateFcn(hObject, eventdata, handles)
 % handles    empty - handles not created until after all CreateFcns called
 
 % Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
-% --- Executes on button press in checkbox2.
-function checkbox2_Callback(hObject, eventdata, handles)
-% hObject    handle to checkbox2 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hint: get(hObject,'Value') returns toggle state of checkbox2
-
-
-% --- Executes on selection change in popupmenu2.
-function popupmenu2_Callback(hObject, eventdata, handles)
-% hObject    handle to popupmenu2 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: contents = cellstr(get(hObject,'String')) returns popupmenu2 contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from popupmenu2
-
-
-% --- Executes during object creation, after setting all properties.
-function popupmenu2_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to popupmenu2 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: popupmenu controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
-% --- Executes on button press in workspace_save_box.
-function workspace_save_box_Callback(hObject, eventdata, handles)
-% hObject    handle to workspace_save_box (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hint: get(hObject,'Value') returns toggle state of workspace_save_box
-
-
-% --- Executes on selection change in popupmenu3.
-function popupmenu3_Callback(hObject, eventdata, handles)
-% hObject    handle to popupmenu3 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: contents = cellstr(get(hObject,'String')) returns popupmenu3 contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from popupmenu3
-
-
-% --- Executes during object creation, after setting all properties.
-function popupmenu3_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to popupmenu3 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: popupmenu controls usually have a white background on Windows.
 %       See ISPC and COMPUTER.
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
@@ -694,36 +494,14 @@ autoroi.menu_regression=get(handles.menu_regression,'Value');
 %Manual Refinement
 autoroi.refine_components=get(handles.manual_refine,'Value');
 
-%CSV Output
-autoroi.check_csv=get(handles.check_csv,'Value');
-
 %Display Contours
 autoroi.check_contours=get(handles.check_contours,'Value');
 
 %Display Map
 autoroi.check_map=get(handles.check_map,'Value');
 
-%Display Merging Example
-autoroi.check_merge=get(handles.check_merge,'Value');
-
 %Display Component Centers
 autoroi.use_classifier=get(handles.use_classifier,'Value');
-
-%Save PDF
-autoroi.check_pdf=get(handles.check_pdf,'Value');
-
-%Open PDF
-autoroi.open_pdf=get(handles.open_pdf,'Value');
-
-%==========Read Frames to Analyze=======
-%Start frame
-autoroi.frames_start=get(handles.frames_start,'String');
-
-%End frame
-autoroi.frames_end=get(handles.frames_end,'String');
-
-%All frames box
-autoroi.frames_box=get(handles.frames_box,'Value');
 
 %============Read Input Boxes===========
 %Estimated Components
@@ -779,9 +557,6 @@ if exist('autoroi.manual_refine','var')
     set(handles.manual_refine,'Value',autoroi.refine_components);
 end
 
-%CSV Output
-set(handles.check_csv,'Value',autoroi.check_csv);
-
 %Display Contours
 set(handles.check_contours,'Value',autoroi.check_contours);
 
@@ -790,29 +565,8 @@ if exist('autoroi.check_map','var')
     set(handles.check_map,'Value',autoroi.check_map);
 end
 
-%Display Merging Example
-set(handles.check_merge,'Value',autoroi.check_merge);
-
 %Display Center
 set(handles.use_classifier,'Value',autoroi.use_classifier);
-
-%Save PDF
-set(handles.check_pdf,'Value',autoroi.check_pdf);
-
-%Open PDF
-if exist('autoroi.open_pdf','var')
-set(handles.check_pdf,'Value',autoroi.open_pdf);
-end
-
-%==========Read Frames to Analyze=======
-%Start frame
-set(handles.frames_start,'String',autoroi.frames_start);
-
-%End frame
-set(handles.frames_end,'String',autoroi.frames_end);
-
-%All frames box
-set(handles.frames_box,'Value',autoroi.frames_box);
 
 %==========Read Input Boxes=============
 %Estimated Components
@@ -960,48 +714,6 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 
-% --- Executes on button press in checkbox5.
-function checkbox5_Callback(hObject, eventdata, handles)
-% hObject    handle to checkbox5 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hint: get(hObject,'Value') returns toggle state of checkbox5
-
-
-
-function input_contour_thresh_Callback(hObject, eventdata, handles)
-% hObject    handle to input_contour_thresh (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of input_contour_thresh as text
-%        str2double(get(hObject,'String')) returns contents of input_contour_thresh as a double
-
-
-% --- Executes during object creation, after setting all properties.
-function input_contour_thresh_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to input_contour_thresh (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
-% --- Executes on button press in check_merge.
-function check_merge_Callback(hObject, eventdata, handles)
-% hObject    handle to check_merge (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hint: get(hObject,'Value') returns toggle state of check_merge
-
-
-
 function input_space_down_Callback(hObject, eventdata, handles)
 % hObject    handle to input_space_down (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -1070,70 +782,6 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 
-% --- Executes on button press in check_csv.
-function check_csv_Callback(hObject, eventdata, handles)
-% hObject    handle to check_csv (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hint: get(hObject,'Value') returns toggle state of check_csv
-
-
-
-function frames_end_Callback(hObject, eventdata, handles)
-% hObject    handle to frames_end (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of frames_end as text
-%        str2double(get(hObject,'String')) returns contents of frames_end as a double
-
-
-% --- Executes during object creation, after setting all properties.
-function frames_end_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to frames_end (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
-
-function frames_start_Callback(hObject, eventdata, handles)
-% hObject    handle to frames_start (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of frames_start as text
-%        str2double(get(hObject,'String')) returns contents of frames_start as a double
-
-
-% --- Executes during object creation, after setting all properties.
-function frames_start_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to frames_start (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
-% --- Executes on button press in frames_box.
-function frames_box_Callback(hObject, eventdata, handles)
-% hObject    handle to frames_box (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hint: get(hObject,'Value') returns toggle state of frames_box
-
-
 % --- Executes on button press in check_mat.
 function check_mat_Callback(hObject, eventdata, handles)
 % hObject    handle to check_mat (see GCBO)
@@ -1152,15 +800,6 @@ function use_classifier_Callback(hObject, eventdata, handles)
 % Hint: get(hObject,'Value') returns toggle state of use_classifier
 
 
-% --- Executes on button press in check_pdf.
-function check_pdf_Callback(hObject, eventdata, handles)
-% hObject    handle to check_pdf (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hint: get(hObject,'Value') returns toggle state of check_pdf
-
-
 % --- Executes on button press in manual_refine.
 function manual_refine_Callback(hObject, eventdata, handles)
 % hObject    handle to manual_refine (see GCBO)
@@ -1177,15 +816,6 @@ function check_map_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of check_map
-
-
-% --- Executes on button press in open_pdf.
-function open_pdf_Callback(hObject, eventdata, handles)
-% hObject    handle to open_pdf (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hint: get(hObject,'Value') returns toggle state of open_pdf
 
 
 % --- Executes on button press in pushbutton9.
@@ -1218,14 +848,6 @@ function pushbutton12_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 msgbox("""Autoregression"" is used to estimate the calcium indicator kinetics. ""Rise and Decay"" estimates both the rise and decay kinetics of the calcium indicator and incorporates them when extracting fluorescence traces and deconvolving the signal.  Due to the difficulty in detecting fast rise times, using ""Rise and Decay"" may result in overfit data if the imaging was performed at low temporal resolution (<16 Hz).  ""Decay"" estimates just the decay kinetics of the calcium indicator and is the recommended setting for lower temporal resolution imaging.  ""No Dynamics"" will produce only raw traces and will not perform deconvolution.","Help",'replace')
-
-
-% --- Executes on button press in pushbutton13.
-function pushbutton13_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton13 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-msgbox("Choose the number of frames to analyze. Checking the box ""Use All Frames"" will automatically detect and use all the frames in any given video and ignore the inputted values.","Help",'replace')
 
 
 % --- Executes on button press in pushbutton14.
@@ -1292,14 +914,6 @@ function pushbutton21_Callback(hObject, eventdata, handles)
 msgbox("""Manual Initial Refinement"" adds an additional step following initialization to manually add or remove ROIs.  ROIs can also be removed in the step ""ROI Refinement.""  To fully automate the process, it is recommended to optimize your settings to slightly overestimate the number of ROIs and then remove erroneous ROIs later. This step is included as an option for particularly troublesome files and for those who prefer semi-automated ROI selection.  Initial spatial components will be displayed in a new figure.  The center of estimates in ROIs is highlighted with a magenta circle, surrounded by the boundary of the ROI. To manually add an ROI, left click with the mouse where you want to add the center of an ROI.  The boundary of the ROI will be automatically computed and drawn. To manually remove an ROI, right click on any ROI center. Hit the enter key to continue ROI detection.","Help",'replace')
 
 
-% --- Executes on button press in pushbutton22.
-function pushbutton22_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton22 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-msgbox("""Export to .csv"" exports the data to a .csv file that can be opened in programs outside of MATLAB.","Help",'replace')
-
-
 % --- Executes on button press in pushbutton23.
 function pushbutton23_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton23 (see GCBO)
@@ -1313,7 +927,7 @@ function pushbutton24_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton24 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-msgbox("""Refine Detection with Classifier"" uses correlation test and a CNN-based neuron classifier to exclude non-neuron ROIs.","Help",'replace')
+msgbox("""Use Neuron Classifier"" uses correlation test and a CNN-based neuron classifier to exclude non-neuron ROIs.","Help",'replace')
 
 
 % --- Executes on button press in pushbutton25.
@@ -1322,30 +936,6 @@ function pushbutton25_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 msgbox("""Display ROI Browser"" shows extracted raw fluorescence data, the inferred trace generated, and the ROI shape and location.","Help",'replace')
-
-
-% --- Executes on button press in pushbutton26.
-function pushbutton26_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton26 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-msgbox("""Display Merging Example"" shows an example of how several components were merged to form a single ROI.  This is useful when optimizing ""Merge Threshold"" and ""Component Width.""","Help",'replace')
-
-
-% --- Executes on button press in pushbutton27.
-function pushbutton27_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton27 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-msgbox("""Save PDFs"" saves .pdf files displaying traces of the analyzed data, with each PDF showing 10 ROIs.","Help",'replace')
-
-
-% --- Executes on button press in pushbutton28.
-function pushbutton28_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton28 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-msgbox("""Open PDFs"" automatically opens the .pdf files generated by ""Save PDFs"" upon completion of the ROI detection.","Help",'replace')
 
 
 % --- Executes on button press in pushbutton29.
