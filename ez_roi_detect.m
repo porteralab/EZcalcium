@@ -57,32 +57,7 @@ handles.output = hObject;
 
 % Update handles structure
 guidata(hObject, handles);
-% Choose default command line output for ez_motion_correction
-handles.output = hObject;
 
-% Update handles structure
-guidata(hObject, handles);
-
-autosave_file='autosave_ez_autoroi.mat'; %Name autosave file
-
-%Check if autoload exists
-if exist('autosave_ez_autoroi.mat','file')==2 %Checks for autosave file
-    load('autosave_ez_autoroi.mat','autoroi'); %loads file into workspace
-    write_autoroi(handles,autoroi,2) %Load settings into GUI
-else
-    ez_autoload_fail(autosave_file) %Runs dialog box to find and move an autoload file
-    if exist('autosave_ez_autoroi.mat','file')==2 %If no autoload selected, create default
-        load('autosave_ez_autoroi.mat','autoroi'); %loads file into workspace
-        %Check if valid save file
-        if exist('autoroi','var')~=1
-            warning_text='The selected file is not a valid settings file.';
-            ez_warning_small(warning_text);
-            return
-        else
-            write_autoroi(handles,autoroi,2) %Load settings into GUI
-        end
-    end
-end
 % UIWAIT makes ez_roi_detect wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
 
@@ -267,9 +242,6 @@ function run_button_Callback(hObject, eventdata, handles)
 
 autoroi=parse_autoroi(handles,2); %read GUI
 
-%Autosave
-save('autosave_ez_autoroi.mat','autoroi');
-
 %Move files to process highlight to first position
 set(handles.processed_list,'Value',1);
 
@@ -294,7 +266,6 @@ for i=1:file_num
     disp('Starting ROI detection!');
     [progress]=ez_roi_detect_process(filename,autoroi,handles,progress); 
     
-    %-----------------Update lists and Autosave-------------------
     %Update files list
     if isempty(autoroi.processed_list{1})==1
         autoroi.processed_list{1}=progress.newfile;
@@ -309,10 +280,6 @@ for i=1:file_num
     %Update processed Files list
     set(handles.processed_list,'String',autoroi.processed_list);
     drawnow %Updates GUI
-    
-    %Autosave
-    save('autosave_ez_autoroi.mat','autoroi');
-    %---------------End Update lists and Autosave-----------------
 end
 
 % --- Executes on button press in help_button.

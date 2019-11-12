@@ -57,51 +57,9 @@ handles.output = hObject;
 
 % Update handles structure
 guidata(hObject, handles);
-% Choose default command line output for ez_motion_correction
-handles.output = hObject;
-
-% Update handles structure
-guidata(hObject, handles);
-
-autosave_file='autosave_ez_refine.mat'; %Name autosave file
-
-%Check if autoload exists
-try
-    if exist('autosave_ez_refine.mat','file')==2 %Checks for autosave file
-        load('autosave_ez_refine.mat'); %loads file into workspace
-        write_refine_roi(handles,refine_roi) %Load settings into GUI
-    else
-        ez_autoload_fail(autosave_file) %Runs dialog box to find and move an autoload file
-        if exist('autosave_ez_refine.mat','file')==2 %If no autoload selected, create default
-            load('autosave_ez_refine.mat'); %loads file into workspace
-            %Check if valid save file
-            if exist('refine','var')~=1
-                warning_text='The selected file is not a valid settings file.';
-                ez_warning_small(warning_text);
-                return
-            else
-                write_refine_roi(handles,refine_roi) %Load settings into GUI
-            end
-        end
-    end
-catch
-    ez_autoload_fail(autosave_file) %Runs dialog box to find and move an autoload file
-    if exist('autosave_ez_refine.mat','file')==2 %If no autoload selected, create default
-        load('autosave_ez_refine.mat'); %loads file into workspace
-        %Check if valid save file
-        if exist('refine','var')~=1
-            warning_text='The selected file is not a valid settings file.';
-            ez_warning_small(warning_text);
-            return
-        else
-            write_refine_roi(handles,refine_roi) %Load settings into GUI
-        end
-    end
-end
 
 % UIWAIT makes ez_roi_refine wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
-%
 
 
 % --- Outputs from this function are returned to the command line.
@@ -122,10 +80,6 @@ function run_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 refine_roi=parse_refine_roi(handles); %read GUI
-
-%Autosave
-save('autosave_ez_refine.mat','refine_roi');
-
 
 %=========Re-calculate data from load button===================
 %------Calculate Baseline Stability - First vs Last-------
