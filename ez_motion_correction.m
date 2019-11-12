@@ -111,25 +111,18 @@ supported_files = {'*.tif; *.tiff; *.mat; *.avi;',...
 if iscell(add_file)||ischar(add_file) %Checks to see if anything was selected
     
     %Checks to see if only one item was added 
-    add_file = cellstr(add_file);
+    if ~iscell(add_file); add_file = cellstr(add_file); end
     
     %Check for repeats, if not, add to list
     for i = 1:length(add_file)
-        full_add_file = [add_filepath char(add_file(i))]; %update full names
+        full_add_file = [add_filepath add_file{i}]; %update full names
         
-        if sum(ismember(motcor.to_process_list,full_add_file))>0%If repeats, warning_text update
-            warning_text = ['File: ' char(add_file(i)) ' is already on the list.'];
+        if sum(ismember(motcor.to_process_list,full_add_file)) > 0%If repeats, warning_text update
+            warning_text = ['File: ' add_file{i} ' is already on the list.'];
             ez_warning_small(warning_text);
         else
-            if isempty(motcor.to_process_list) == 1
-                motcor.to_process_list = cellstr(full_add_file); %Adds first item to list
-                %Refresh list
-                set(handles.to_process_list,'String',motcor.to_process_list);
-            else
-                motcor.to_process_list(end+1) = cellstr(full_add_file); %Adds to list
-                %Refresh list
-                set(handles.to_process_list,'String',motcor.to_process_list);
-            end
+            motcor.to_process_list = vertcat(motcor.to_process_list,cellstr(full_add_file)); %Adds to list
+            set(handles.to_process_list,'String',motcor.to_process_list); %Refresh list
         end
     end
 end
@@ -169,17 +162,11 @@ motcor = parse_motcor(handles,2);
 %Get position of highlight
 list_position = get(handles.to_process_list,'Value');
 
-%Checks if anything is selected
-if isempty(list_position) == 1
-    return
-end
-
 %Checks if anything is in the selected space
 if isempty(motcor.to_process_list) == 1
     return
 end
 
-%Move position of highlight, if necessary
 if list_position == size(motcor.to_process_list,1) %Checks if in last position
     if list_position == 1 %Checks if only one item is in list
         set(handles.to_process_list,'Value',1); %moves highlight to position 1
@@ -189,7 +176,11 @@ if list_position == size(motcor.to_process_list,1) %Checks if in last position
 end
 
 %Update internal list
-motcor.to_process_list(list_position) = [];
+if size(motcor.to_process_list,1) == 1
+    motcor.to_process_list = blanks(0);
+else
+    motcor.to_process_list(list_position) = '';
+end
 
 %Update GUI
 set(handles.to_process_list,'String',motcor.to_process_list);
@@ -263,7 +254,7 @@ function clear_button_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-set(handles.processed_list, 'String', ''); %Clear list
+set(handles.processed_list, 'String', blanks(0)); %Clear list
 set(handles.processed_list, 'Value', 1); %Reset value of highlighter
 
 
