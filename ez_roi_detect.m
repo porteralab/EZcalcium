@@ -27,11 +27,11 @@ function varargout = ez_roi_detect(varargin)
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
 gui_State = struct('gui_Name',       mfilename, ...
-                   'gui_Singleton',  gui_Singleton, ...
-                   'gui_OpeningFcn', @ez_roi_detect_OpeningFcn, ...
-                   'gui_OutputFcn',  @ez_roi_detect_OutputFcn, ...
-                   'gui_LayoutFcn',  [] , ...
-                   'gui_Callback',   []);
+    'gui_Singleton',  gui_Singleton, ...
+    'gui_OpeningFcn', @ez_roi_detect_OpeningFcn, ...
+    'gui_OutputFcn',  @ez_roi_detect_OutputFcn, ...
+    'gui_LayoutFcn',  [] , ...
+    'gui_Callback',   []);
 if nargin && ischar(varargin{1})
     gui_State.gui_Callback = str2func(varargin{1});
 end
@@ -63,7 +63,7 @@ guidata(hObject, handles);
 
 
 % --- Outputs from this function are returned to the command line.
-function varargout = ez_roi_detect_OutputFcn(hObject, eventdata, handles) 
+function varargout = ez_roi_detect_OutputFcn(hObject, eventdata, handles)
 % varargout  cell array for returning output args (see VARARGOUT);
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -89,7 +89,7 @@ supported_files = {'*.tif; *.tiff; *.mat; *.avi;',...
 
 if iscell(add_file)||ischar(add_file) %Checks to see if anything was selected
     
-    %Checks to see if only one item was added 
+    %Checks to see if only one item was added
     if ~iscell(add_file); add_file = cellstr(add_file); end
     
     %Check for repeats, if not, add to list
@@ -141,14 +141,12 @@ autoroi = parse_autoroi(handles,2);
 list_position = get(handles.to_process_list,'Value');
 
 %Checks if anything is in the internal list
-if isempty(autoroi.to_process_list) == 1
+if isempty(autoroi.to_process_list)
     return
 end
 
 if list_position == size(autoroi.to_process_list,1) %Checks if in last position
-    if list_position == 1 %Checks if only one item is in list
-        set(handles.to_process_list,'Value',1); %moves highlight to position 1
-    else
+    if list_position ~= 1
         set(handles.to_process_list,'Value',list_position-1); %moves highlight up one position
     end
 end
@@ -194,25 +192,20 @@ function open_button_Callback(hObject, eventdata, handles)
 %This function opens processed files.
 
 %Get selected item position
-list_position=get(handles.processed_list,'Value'); %Find location of highlight in list
-
-%Checks if anything is selected
-if isempty(list_position)==1
-    return
-end
+list_position = get(handles.processed_list,'Value'); %Find location of highlight in list
 
 %Get all file names
-list_strings=get(handles.processed_list,'String');
+list_strings = get(handles.processed_list,'String');
 
 %Checks if only one value is listed in list
-if size (list_strings,1)==1
-    list_cell{1,1}=list_strings; %Converts single value reading to be in single cell
+if size(list_strings,1) == 1
+    list_cell{1,1} = list_strings; %Converts single value reading to be in single cell
 else
-    list_cell=list_strings;
+    list_cell = list_strings;
 end
 
 %Get selected file name
-file_string=cellstr(list_cell{list_position});
+file_string = cellstr(list_cell{list_position});
 
 %Open file in the default program
 %system(file_string{1});
@@ -238,49 +231,202 @@ function run_button_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-%This runs the motion correction
+% This runs the roi detection
 
-autoroi=parse_autoroi(handles,2); %read GUI
+autoroi = parse_autoroi(handles,2); %read GUI
 
 %Move files to process highlight to first position
 set(handles.processed_list,'Value',1);
 
 %Find number of files to be run
-file_num=size(get(handles.to_process_list,'String'),1);
+file_num = size(get(handles.to_process_list,'String'),1);
 
-%-----Initiatlize Progress variables-----
-progress.to_process_size=file_num; %Check number of files in list
-
-progress.current_file=0; %current file progress
-
-progress.overall=0; %overall progress
-
-progress.time_remaining=0; %estimated time remaining
-
-progress.tic=tic; %mark start of motion correction process
-
-for i=1:file_num
-    progress.current_file=i; %Marks current file number
+for i = 1:file_num
+    filename = autoroi.to_process_list{1};
+    disp(['Starting ROI detection for ' filename]);
+    [fpath,fname] = fileparts(filename);
+    filename_roi = fullfile(fpath,[fname '_roi.mat']);
     
-    filename=autoroi.to_process_list{1};
-    disp('Starting ROI detection!');
-    [progress]=ez_roi_detect_process(filename,autoroi,handles,progress); 
+    Y = read_file(filename);
     
-    %Update files list
-    if isempty(autoroi.processed_list{1})==1
-        autoroi.processed_list{1}=progress.newfile;
-    else
-        autoroi.processed_list{end+1}=progress.newfile;
+    if ~isa(Y,'single');    Y = single(Y);  end
+    
+    [d1,d2,T] = size(Y); %Extract dimensions of dataset
+    d = d1*d2; %Calculate total number of pixels
+    
+    %===========================Set Parameters=================================
+    K = str2double(autoroi.input_components); %Check number of components to be found
+    tau = round(str2double(autoroi.input_kernel)/2); %Std of gaussian kernel (size of neuron)
+    p = autoroi.menu_regression-1; %From "Autoregression" in GUI.
+    
+    if autoroi.menu_init==1 %Check "Initialization" in GUI
+        init_method='greedy';
+    elseif autoroi.menu_init==2
+        init_method='sparse_NMF';
     end
-    autoroi.to_process_list(1)=[];
+    
+    if autoroi.menu_search==1 %Check "Search Method" in GUI
+        search_method='ellipse';
+    elseif autoroi.menu_search==2
+        search_method='dilate';
+    end
+    
+    if autoroi.menu_deconvolution==1 %Check "Deconvolution Method" in GUI
+        deconv_method='MCMC';
+        method='spgl1';
+        spatial_method='regularized';
+    elseif autoroi.menu_deconvolution==2
+        deconv_method='constrained_foopsi';
+        method='spgl1';
+        spatial_method='regularized';
+    elseif autoroi.menu_deconvolution==3
+        deconv_method='MCEM_foopsi';
+        method='spgl1';
+        spatial_method='regularized';
+    elseif autoroi.menu_deconvolution==4
+        deconv_method='constrained_foopsi';
+        method='cvx';
+        spatial_method='constrained';
+    elseif autoroi.menu_deconvolution==5
+        deconv_method='MCEM_foopsi';
+        method='cvx';
+        spatial_method='constrained';
+    end
+    
+    %--------------Set Default Values-------------------
+    options = CNMFSetParms(...                                          %Check CNMFSetParms.m for more details
+        'd1',d1,'d2',d2,...                                             %Dimensions of datasets
+        'ssub',str2double(autoroi.input_space_down),...                 %Spatial downsampling
+        'tsub',str2double(autoroi.input_time_down),...                  %Temporal downsampling
+        'init_method',init_method,...                                   %Initialization method
+        'search_method',search_method,...                               %Search locations when updating spatial components
+        'dist',3,...                                                    %Expansion factor of ellipse
+        'deconv_method',deconv_method,...                               %Activity deconvolution method
+        'method',method,...                                             %Method for solving convex problems
+        'temporal_iter',str2double(autoroi.input_time_iteration),...    %Number of block-coordinate descent steps
+        'fudge_factor',str2double(autoroi.input_fudge),...              %Bias correction for autoregression coefficients
+        'merge_thr',str2double(autoroi.input_merge_thresh),...          %Merging threshold
+        'spatial_method',spatial_method,...                             %Constrained vs regularized
+        'p',p,...                                                       %Order of AR dynamics
+        'nb',2,...                                                      %Number of background components
+        'min_SNR',3,...                                                 %Minimum SNR threshold
+        'cnn_thr',0.2,...                                               %Threshold for CNN classifier
+        'bas_nonneg',0);                                                %Allow a negative baseline
+    
+    [P,Y] = preprocess_data(Y,p,options); %Data pre-processing
+    %=============================End Set Parameters========================
+    
+    %============================Extract Components=========================
+    [Ain, Cin, bin, fin, center] = initialize_components(Y, K, tau, options, P); %Initilize components
+    Cn =  correlation_image(Y); %max(Y,[],3); %std(Y,[],3); %image statistic (only for display purposes)
+    
+    %-----End initialization of spatial components using greedyROI and HALS---
+    if autoroi.refine_components==1 %Check if "Manual Initial Refinement" is selected in the GUI
+        [Ain,Cin,~] = manually_refine_components(Y,Ain,Cin,center,Cn,tau,options); %Launch manual refinement
+    end
+    
+    %-------------Update spatial and temporal components-------------------
+    Yr = reshape(Y,d,T);
+    [A,b,Cin] = update_spatial_components(Yr,Cin,fin,[Ain,bin],P,options);
+    P.p = 0;    %Turn off autoregression dynamics temporarily for speed
+    [C,f,P,S,YrA] = update_temporal_components(Yr,A,b,Cin,fin,P,options);
+    %-----------End update spatial and temporal components-----------------
+    
+    %---------------Classify and Select-------------
+    if autoroi.use_classifier==1
+        
+        % classify components
+        rval_space = classify_comp_corr(Y,A,C,b,f,options);
+        ind_corr = rval_space > options.space_thresh;           % components that pass the correlation test
+        % this test will keep processes
+        
+        % further classification with cnn_classifier
+        try  % matlab 2017b or later is needed
+            [ind_cnn,~] = cnn_classifier(A,[d1,d2],'cnn_model',options.cnn_thr);
+        catch
+            ind_cnn = true(size(A,2),1);                        % components that pass the CNN classifier
+        end
+        
+        % event exceptionality
+        
+        fitness = compute_event_exceptionality(C+YrA,options.N_samples_exc,options.robust_std);
+        ind_exc = (fitness < options.min_fitness);
+        
+        % select components
+        
+        keep = (ind_corr | ind_cnn) & ind_exc;
+        
+        % display kept and discarded components
+        figure;
+        subplot(121); montage(extract_patch(A(:,keep),[d1,d2],[30,30]),'DisplayRange',[0,0.15]);
+        title('Kept Components');
+        subplot(122); montage(extract_patch(A(:,~keep),[d1,d2],[30,30]),'DisplayRange',[0,0.15])
+        title('Discarded Components');
+        
+        A = A(:,keep);
+        C = C(keep,:);
+    end
+    
+    %------------------------Merge found components------------------------
+    [Am,Cm,~,~,Pm,~] = merge_components(Yr,A,b,C,f,P,S,options); %Merge similar components
+    
+    %---------------Update components again--------------------
+    Pm.p=p; %Restore autoregression dynamics value
+    [A2,b2,C2] = update_spatial_components(Yr,Cm,f,[Am,b],Pm,options); %Update spatial components
+    [C2,f2,P2,S2,~] = update_temporal_components(Yr,A2,b2,C2,f,Pm,options); %Update temporal components
+    
+    %===============================Plotting================================
+    
+    [A_or,C_or,S_or,P_or] = order_ROIs(A2,C2,S2,P2); %Reorder ROIs
+    
+    % Calculate traces to be saved
+    [F_raw,F_inferred] = construct_traces(Yr,A_or,C_or,b2,f2,options);
+    S_deconv = S_or;
+    
+    %------------ROI Map Plotting---------------
+    figure;
+    plot_contours(A_or,Cn,options,1);
+    
+    %-----------Display Contours----------------
+    if autoroi.check_contours==1 %Check if "Display Contours" has been selected in the GUI
+        plot_components_GUI(Yr,A_or,C_or,b2,f2,Cn,options); %Plot individual components
+    end
+    
+    %------Save .mat file----
+    save([filename(1:end-4) '_roi'],'Cn','A_or','C_or','S_or','P_or','F_raw','F_inferred','S_deconv','options');
+    
+    %Update internal file list
+    if size(autoroi.to_process_list,1) == 1
+        autoroi.to_process_list = blanks(0);
+    else
+        autoroi.to_process_list(1) = '';
+    end
+    autoroi.processed_list = vertcat(autoroi.processed_list,cellstr(filename_roi));
     
     %Update files to process list
-    set(handles.to_process_list,'String',autoroi.to_process_list');
+    set(handles.to_process_list,'String',autoroi.to_process_list);
     
     %Update processed Files list
     set(handles.processed_list,'String',autoroi.processed_list);
     drawnow %Updates GUI
 end
+
+function [F_raw,F_inferred] = construct_traces(Y,A,C,b,f,options)
+Y = double(Y);
+b = double(b);
+C = double(C);
+f = double(f);
+nA = full(sqrt(sum(A.^2))');
+[K,~] = size(C);
+A = A/spdiags(nA,0,K,K);
+C = bsxfun(@times,C,nA(:));
+AY = mm_fun(A,Y);
+
+Y_r = (AY- (A'*A)*C - full(A'*b)*f) + C;
+[~,Df] = extract_DF_F(Y,A,C,[],options,AY);
+
+F_raw = Y_r ./ Df;
+F_inferred = C ./ Df;
 
 % --- Executes on button press in help_button.
 function help_button_Callback(hObject, eventdata, handles)
@@ -490,7 +636,7 @@ if parse_mode==2
     autoroi.to_process_list=get(handles.to_process_list,'String');
     
     %Processed Files list
-    autoroi.processed_list=cellstr(get(handles.processed_list,'String'));
+    autoroi.processed_list=get(handles.processed_list,'String');
 end
 
 function write_autoroi(handles,autoroi,write_mode)

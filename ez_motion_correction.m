@@ -27,11 +27,11 @@ function varargout = ez_motion_correction(varargin)
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
 gui_State = struct('gui_Name',       mfilename, ...
-                   'gui_Singleton',  gui_Singleton, ...
-                   'gui_OpeningFcn', @ez_motion_correction_OpeningFcn, ...
-                   'gui_OutputFcn',  @ez_motion_correction_OutputFcn, ...
-                   'gui_LayoutFcn',  [] , ...
-                   'gui_Callback',   []);
+    'gui_Singleton',  gui_Singleton, ...
+    'gui_OpeningFcn', @ez_motion_correction_OpeningFcn, ...
+    'gui_OutputFcn',  @ez_motion_correction_OutputFcn, ...
+    'gui_LayoutFcn',  [] , ...
+    'gui_Callback',   []);
 if nargin && ischar(varargin{1})
     gui_State.gui_Callback = str2func(varargin{1});
 end
@@ -63,7 +63,7 @@ guidata(hObject, handles);
 
 
 % --- Outputs from this function are returned to the command line.
-function varargout = ez_motion_correction_OutputFcn(hObject, eventdata, handles) 
+function varargout = ez_motion_correction_OutputFcn(hObject, eventdata, handles)
 % varargout  cell array for returning output args (see VARARGOUT);
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -89,14 +89,14 @@ supported_files = {'*.tif; *.tiff; *.mat; *.avi;',...
 
 if iscell(add_file)||ischar(add_file) %Checks to see if anything was selected
     
-    %Checks to see if only one item was added 
+    %Checks to see if only one item was added
     if ~iscell(add_file); add_file = cellstr(add_file); end
     
     %Check for repeats, if not, add to list
     for i = 1:length(add_file)
         full_add_file = [add_filepath add_file{i}]; %update full names
         
-        if sum(ismember(motcor.to_process_list,full_add_file)) > 0%If repeats, warning_text update
+        if sum(ismember(motcor.to_process_list,full_add_file)) > 0 %If repeats, warning_text update
             warning_text = ['File: ' add_file{i} ' is already on the list.'];
             ez_warning_small(warning_text);
         else
@@ -142,14 +142,12 @@ motcor = parse_motcor(handles,2);
 list_position = get(handles.to_process_list,'Value');
 
 %Checks if anything is in the selected space
-if isempty(motcor.to_process_list) == 1
+if isempty(motcor.to_process_list)
     return
 end
 
 if list_position == size(motcor.to_process_list,1) %Checks if in last position
-    if list_position == 1 %Checks if only one item is in list
-        set(handles.to_process_list,'Value',1); %moves highlight to position 1
-    else
+    if list_position ~= 1
         set(handles.to_process_list,'Value',list_position-1); %moves highlight up one position
     end
 end
@@ -163,6 +161,7 @@ end
 
 %Update GUI
 set(handles.to_process_list,'String',motcor.to_process_list);
+drawnow
 
 
 % --- Executes on selection change in processed_list.
@@ -198,7 +197,7 @@ function open_button_Callback(hObject, eventdata, handles)
 list_position = get(handles.processed_list,'Value'); %Find location of highlight in list
 
 %Checks if anything is selected
-if isempty(list_position) == 1
+if isempty(list_position)
     return
 end
 
@@ -206,7 +205,7 @@ end
 list_strings = get(handles.processed_list,'String');
 
 %Checks if only one value is listed in list
-if size (list_strings,1) == 1
+if size(list_strings,1) == 1
     list_cell{1,1} = list_strings; %Converts single value reading to be in single cell
 else
     list_cell = list_strings;
@@ -216,15 +215,8 @@ end
 file_string = cellstr(list_cell{list_position});
 file_string = file_string{1};
 
-%Open file in the default program or load into matlab if .mat file
-if strcmp((file_string(end-3:end)),'.mat') 
-    disp(['Loading ' file_string ' into base workspace']);
-    load(file_string);
-    assignin('base','image_data',image_data);
-    disp('Loading complete!');
-else
-    system(file_string);
-end
+%Open file in the default program
+system(file_string);
 
 
 % --- Executes on button press in clear_button.
@@ -277,7 +269,7 @@ for i = 1:file_num
     bin_width = str2double(motcor.bin_width);
     [fpath,fname] = fileparts(filename);
     filename_mcor = fullfile(fpath,[fname '_mcor.tif']);
-        
+    
     if motcor.non_rigid == 0
         options = NoRMCorreSetParms(...
             'd1',FOV(1),...
@@ -304,17 +296,16 @@ for i = 1:file_num
     % Run motion correction
     normcorre_batch_even(filename,options)
     
-    % Update file list
-    if isempty(motcor.processed_list{1}) == 1
-        motcor.processed_list{1} = filename_mcor;
+    %Update internal file list
+    if size(motcor.to_process_list,1) == 1
+        motcor.to_process_list = blanks(0);
     else
-        motcor.processed_list{end+1} = filename_mcor;
+        motcor.to_process_list(1) = '';
     end
-    motcor.to_process_list(1) = [];
-   
+    motcor.processed_list = vertcat(motcor.processed_list,cellstr(filename_mcor));
     
     %Update files to process list
-    set(handles.to_process_list,'String',motcor.to_process_list');
+    set(handles.to_process_list,'String',motcor.to_process_list);
     
     %Update processed Files list
     set(handles.processed_list,'String',motcor.processed_list);
@@ -509,10 +500,10 @@ end
 full_filename = [filepath filename];
 
 %Load .mat file
-load(full_filename);
+load(full_filename,'motcor');
 
 %Check if valid save file
-if exist('motcor','var') ~= 1
+if ~exist('motcor','var')
     warning_text = 'The selected file is not a valid settings file.';
     ez_warning_small(warning_text);
     return
@@ -536,7 +527,7 @@ if parse_mode == 2
     motcor.to_process_list = get(handles.to_process_list,'String');
     
     %Processed Files list
-    motcor.processed_list = cellstr(get(handles.processed_list,'String'));
+    motcor.processed_list = get(handles.processed_list,'String');
 end
 
 function write_motcor(handles,motcor,write_mode)
