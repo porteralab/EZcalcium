@@ -22,7 +22,7 @@ function varargout = ez_motion_correction(varargin)
 
 % Edit the above text to modify the response to help ez_motion_correction
 
-% Last Modified by GUIDE v2.5 09-Nov-2019 17:30:22
+% Last Modified by GUIDE v2.5 12-Nov-2019 16:28:30
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -51,6 +51,15 @@ function ez_motion_correction_OpeningFcn(hObject, eventdata, handles, varargin)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 % varargin   command line arguments to ez_motion_correction (see VARARGIN)
+
+filepath = fileparts([mfilename('fullpath') '.m']);
+settings_file = fullfile(filepath,'ez_settings.mat');
+if isfile(settings_file)
+    if ismember('motcor',who('-file',settings_file))
+        load(fullfile(filepath,'ez_settings.mat'),'motcor')
+        write_motcor(handles,motcor,2)
+    end
+end
 
 % Choose default command line output for ez_motion_correction
 handles.output = hObject;
@@ -468,7 +477,7 @@ end
 function motcor_save_settings(handles)
 %Manually save settings from GUI
 
-[motcor] = parse_motcor(handles,1); %reads GUI
+motcor = parse_motcor(handles,1); %reads GUI
 
 %Open save box
 [filename,filepath] = uiputfile('*.mat');
@@ -512,7 +521,7 @@ end
 write_motcor(handles,motcor,1)
 
 
-function [motcor] = parse_motcor(handles,parse_mode)
+function motcor = parse_motcor(handles,parse_mode)
 %Reads GUI, stores data into motcor variable
 
 motcor.non_rigid = get(handles.non_rigid_checkbox,'Value');
@@ -605,3 +614,21 @@ function settings_help_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 msgbox("The ""Save Settings"" button allows the user to save all settings under a specific name of your choosing. Settings are saved as .mat files. The ""Load Settings"" button allows one to load all saved settings in future sessions.","Help",'replace')
+
+
+% --- Executes when user attempts to close figure1.
+function figure1_CloseRequestFcn(hObject, eventdata, handles)
+% hObject    handle to figure1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+motcor = parse_motcor(handles,2);
+filepath = fileparts([mfilename('fullpath') '.m']);
+if isfile(fullfile(filepath,'ez_settings.mat'))
+    save(fullfile(filepath,'ez_settings.mat'),'motcor','-append')
+else
+    save(fullfile(filepath,'ez_settings.mat'),'motcor')
+end
+
+% Hint: delete(hObject) closes the figure
+delete(hObject);

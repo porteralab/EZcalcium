@@ -22,7 +22,7 @@ function varargout = ez_roi_detect(varargin)
 
 % Edit the above text to modify the response to help ez_roi_detect
 
-% Last Modified by GUIDE v2.5 24-Oct-2019 16:42:53
+% Last Modified by GUIDE v2.5 12-Nov-2019 16:36:45
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -51,6 +51,15 @@ function ez_roi_detect_OpeningFcn(hObject, eventdata, handles, varargin)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 % varargin   command line arguments to ez_roi_detect (see VARARGIN)
+
+filepath = fileparts([mfilename('fullpath') '.m']);
+settings_file = fullfile(filepath,'ez_settings.mat');
+if isfile(settings_file)
+    if ismember('autoroi',who('-file',settings_file))
+        load(fullfile(filepath,'ez_settings.mat'),'autoroi')
+        write_autoroi(handles,autoroi,2)
+    end
+end
 
 % Choose default command line output for ez_roi_detect
 handles.output = hObject;
@@ -534,7 +543,7 @@ function check_contours_Callback(hObject, eventdata, handles)
 function autoroi_save_settings(handles)
 %Manually save settings from GUI
 
-[autoroi]=parse_autoroi(handles,1); %reads GUI
+autoroi=parse_autoroi(handles,1); %reads GUI
 
 %Open save box
 [filename,filepath] = uiputfile('*.mat');
@@ -566,7 +575,7 @@ end
 full_filename=[filepath filename];
 
 %Load .mat file
-load(full_filename);
+load(full_filename,'autoroi');
 
 %Check if valid save file
 if exist('autoroi','var')~=1
@@ -578,7 +587,7 @@ end
 write_autoroi(handles,autoroi,1)
 
 
-function [autoroi]=parse_autoroi(handles,parse_mode)
+function autoroi = parse_autoroi(handles,parse_mode)
 %Reads GUI, stores data into autoroi variable
 %parse_mode=1 does not include the processed files list
 %parse_mode=2 includes the processed files list
@@ -1050,3 +1059,21 @@ function pushbutton29_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 msgbox("The ""Save Settings"" button allows the user to save all settings under a specific name of your choosing. Settings are saved as .mat files. The ""Load Settings"" button allows one to load all saved settings in future sessions.","Help",'replace')
+
+
+% --- Executes when user attempts to close figure1.
+function figure1_CloseRequestFcn(hObject, eventdata, handles)
+% hObject    handle to figure1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+autoroi = parse_autoroi(handles,2);
+filepath = fileparts([mfilename('fullpath') '.m']);
+if isfile(fullfile(filepath,'ez_settings.mat'))
+    save(fullfile(filepath,'ez_settings.mat'),'autoroi','-append')
+else
+    save(fullfile(filepath,'ez_settings.mat'),'autoroi')
+end
+
+% Hint: delete(hObject) closes the figure
+delete(hObject);

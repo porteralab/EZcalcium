@@ -22,7 +22,7 @@ function varargout = ez_roi_refine(varargin)
 
 % Edit the above text to modify the response to help ez_roi_refine
 
-% Last Modified by GUIDE v2.5 30-Jul-2019 11:45:21
+% Last Modified by GUIDE v2.5 12-Nov-2019 16:38:04
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -51,6 +51,15 @@ function ez_roi_refine_OpeningFcn(hObject, eventdata, handles, varargin)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 % varargin   command line arguments to ez_roi_refine (see VARARGIN)
+
+filepath = fileparts([mfilename('fullpath') '.m']);
+settings_file = fullfile(filepath,'ez_settings.mat');
+if isfile(settings_file)
+    if ismember('refine_roi',who('-file',settings_file))
+        load(fullfile(filepath,'ez_settings.mat'),'refine_roi')
+        write_refine_roi(handles,refine_roi,2)
+    end
+end
 
 % Choose default command line output for ez_roi_refine
 handles.output = hObject;
@@ -1663,18 +1672,18 @@ function box_xlsx_Callback(hObject, eventdata, handles)
 function refine_roi_save_settings(handles)
 %Manually save settings from GUI
 
-[refine_roi]=parse_refine_roi(handles); %reads GUI
+refine_roi = parse_refine_roi(handles); %reads GUI
 
 %Open save box
 [filename,filepath] = uiputfile('*.mat');
 
 %Check if anything was selected
-if filename==0
+if filename == 0
     return
 end
 
 %Concatenate file name
-full_filename=[filepath filename];
+full_filename = [filepath filename];
 
 %Write to .mat file
 save(full_filename,'refine_roi');
@@ -1707,7 +1716,7 @@ end
 write_refine_roi(handles,refine_roi)
 
 
-function [refine_roi]=parse_refine_roi(handles)
+function refine_roi = parse_refine_roi(handles)
 %Reads GUI, stores data into refine_roi variable
 
 %==============Read Menus==============
@@ -2067,3 +2076,21 @@ function pushbutton42_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 msgbox("The ""Automated Exclusion"" section allows the user to set thresholds for a variety of criteria in order to ensure the validity of each ROI. If an ROI is outside of the set threshold for a criterion, it will be automatically excluded upon clicking ""Run Refinement.""","Help",'replace')
 
+
+
+% --- Executes when user attempts to close figure1.
+function figure1_CloseRequestFcn(hObject, eventdata, handles)
+% hObject    handle to figure1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+refine_roi = parse_refine_roi(handles);
+filepath = fileparts([mfilename('fullpath') '.m']);
+if isfile(fullfile(filepath,'ez_settings.mat'))
+    save(fullfile(filepath,'ez_settings.mat'),'refine_roi','-append')
+else
+    save(fullfile(filepath,'ez_settings.mat'),'refine_roi')
+end
+
+% Hint: delete(hObject) closes the figure
+delete(hObject);
