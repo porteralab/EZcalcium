@@ -107,7 +107,7 @@ if iscell(add_file)||ischar(add_file) %Checks to see if anything was selected
         
         if sum(ismember(autoroi.to_process_list,full_add_file)) > 0%If repeats, warning_text update
             warning_text = ['File: ' add_file{i} ' is already on the list.'];
-            ez_warning_small(warning_text);
+            msgbox(warning_text,'Warning');
         else
             autoroi.to_process_list = vertcat(autoroi.to_process_list,cellstr(full_add_file)); %Adds to list
             set(handles.to_process_list,'String',autoroi.to_process_list); %Refresh list
@@ -580,8 +580,7 @@ load(full_filename,'autoroi');
 %Check if valid save file
 if exist('autoroi','var')~=1
     warning_text='The selected file is not a valid settings file.';
-    ez_warning_small(warning_text);
-    return
+    msgbox(warning_text,'Warning');
 end
 
 write_autoroi(handles,autoroi,1)

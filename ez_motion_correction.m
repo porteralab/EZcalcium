@@ -107,7 +107,7 @@ if iscell(add_file)||ischar(add_file) %Checks to see if anything was selected
         
         if sum(ismember(motcor.to_process_list,full_add_file)) > 0 %If repeats, warning_text update
             warning_text = ['File: ' add_file{i} ' is already on the list.'];
-            ez_warning_small(warning_text);
+            msgbox(warning_text,'Warning');
         else
             motcor.to_process_list = vertcat(motcor.to_process_list,cellstr(full_add_file)); %Adds to list
             set(handles.to_process_list,'String',motcor.to_process_list); %Refresh list
@@ -514,8 +514,7 @@ load(full_filename,'motcor');
 %Check if valid save file
 if ~exist('motcor','var')
     warning_text = 'The selected file is not a valid settings file.';
-    ez_warning_small(warning_text);
-    return
+    msgbox(warning_text,'Warning')
 end
 
 write_motcor(handles,motcor,1)

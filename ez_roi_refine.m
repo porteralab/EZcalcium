@@ -309,8 +309,7 @@ if iscell(add_file)||ischar(add_file) %Checks to see if anything was selected
         roi_number=size(handles.ROI.F_raw,1); %Find longest length of data
     else
         warning_text='The selected file is not a compatible data file. Compatible data files should end with _roi.mat';
-        ez_warning_small(warning_text);
-        return
+        msgbox(warning_text,'Warning');
     end
     
     if ~isfield(handles.ROI,'ROI_names') %Check if names are already generated
@@ -1704,13 +1703,12 @@ end
 full_filename=[filepath filename];
 
 %Load .mat file
-load(full_filename);
+load(full_filename,'refine_roi');
 
 %Check if valid save file
 if exist('refine_roi','var')~=1
     warning_text='The selected file is not a valid settings file.';
-    ez_warning_small(warning_text);
-    return
+    msgbox(warning_text,'Warning');
 end
 
 write_refine_roi(handles,refine_roi)
