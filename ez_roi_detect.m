@@ -327,10 +327,9 @@ for i = 1:file_num
     
     %============================Extract Components=========================
     [Ain, Cin, bin, fin, center] = initialize_components(Y, K, tau, options, P); %Initilize components
-    Cn =  correlation_image(Y); %max(Y,[],3); %std(Y,[],3); %image statistic (only for display purposes)
+    Cn =  correlation_image(Y);
     
-    %-----End initialization of spatial components using greedyROI and HALS---
-    if autoroi.refine_components==1 %Check if "Manual Initial Refinement" is selected in the GUI
+    if autoroi.refine_components
         [Ain,Cin,~] = manually_refine_components(Y,Ain,Cin,center,Cn,tau,options); %Launch manual refinement
     end
     
@@ -342,7 +341,7 @@ for i = 1:file_num
     %-----------End update spatial and temporal components-----------------
     
     %---------------Classify and Select-------------
-    if autoroi.use_classifier==1
+    if autoroi.use_classifier
         
         % classify components
         rval_space = classify_comp_corr(Y,A,C,b,f,options);
@@ -380,7 +379,7 @@ for i = 1:file_num
     [Am,Cm,~,~,Pm,~] = merge_components(Yr,A,b,C,f,P,S,options); %Merge similar components
     
     %---------------Update components again--------------------
-    Pm.p=p; %Restore autoregression dynamics value
+    Pm.p = p; %Restore autoregression dynamics value
     [A2,b2,C2] = update_spatial_components(Yr,Cm,f,[Am,b],Pm,options); %Update spatial components
     [C2,f2,P2,S2,~] = update_temporal_components(Yr,A2,b2,C2,f,Pm,options); %Update temporal components
     
@@ -393,11 +392,12 @@ for i = 1:file_num
     S_deconv = S_or;
     
     %------------ROI Map Plotting---------------
-    figure;
-    plot_contours(A_or,Cn,options,1);
+    if autoroi.check_contours
+        figure; plot_contours(A_or,Cn,options,1);
+    end
     
     %-----------Display Contours----------------
-    if autoroi.check_contours==1 %Check if "Display Contours" has been selected in the GUI
+    if autoroi.check_map
         plot_components_GUI(Yr,A_or,C_or,b2,f2,Cn,options); %Plot individual components
     end
     
