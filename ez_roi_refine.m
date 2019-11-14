@@ -57,7 +57,7 @@ settings_file = fullfile(filepath,'ez_settings.mat');
 if isfile(settings_file)
     if ismember('refine_roi',who('-file',settings_file))
         load(fullfile(filepath,'ez_settings.mat'),'refine_roi')
-        write_refine_roi(handles,refine_roi,2)
+        write_refine_roi(handles,refine_roi)
     end
 end
 
