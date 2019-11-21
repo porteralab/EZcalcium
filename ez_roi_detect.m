@@ -281,25 +281,20 @@ for i = 1:file_num
     end
     
     if autoroi.menu_deconvolution==1 %Check "Deconvolution Method" in GUI
-        deconv_method='MCMC';
-        method='spgl1';
-        spatial_method='regularized';
+        deconv_method='constrained_foopsi';
+        method='cvx';
     elseif autoroi.menu_deconvolution==2
         deconv_method='constrained_foopsi';
         method='spgl1';
-        spatial_method='regularized';
     elseif autoroi.menu_deconvolution==3
         deconv_method='MCEM_foopsi';
-        method='spgl1';
-        spatial_method='regularized';
+        method='cvx';
     elseif autoroi.menu_deconvolution==4
-        deconv_method='constrained_foopsi';
-        method='cvx';
-        spatial_method='constrained';
-    elseif autoroi.menu_deconvolution==5
         deconv_method='MCEM_foopsi';
+        method='spgl1';
+    elseif autoroi.menu_deconvolution==5
+        deconv_method='MCMC';
         method='cvx';
-        spatial_method='constrained';
     end
     
     %--------------Set Default Values-------------------
@@ -315,7 +310,6 @@ for i = 1:file_num
         'temporal_iter',str2double(autoroi.input_time_iteration),...    %Number of block-coordinate descent steps
         'fudge_factor',str2double(autoroi.input_fudge),...              %Bias correction for autoregression coefficients
         'merge_thr',str2double(autoroi.input_merge_thresh),...          %Merging threshold
-        'spatial_method',spatial_method,...                             %Constrained vs regularized
         'p',p,...                                                       %Order of AR dynamics
         'nb',2,...                                                      %Number of background components
         'min_SNR',3,...                                                 %Minimum SNR threshold
