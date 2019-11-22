@@ -396,7 +396,7 @@ for i = 1:file_num
     end
     
     %------Save .mat file----
-    save([filename(1:end-4) '_roi'],'Cn','A_or','C_or','S_or','P_or','F_raw','F_inferred','S_deconv','options');
+    save([filename(1:end-4) '_roi.mat'],'Cn','A_or','C_or','S_or','P_or','F_raw','F_inferred','S_deconv','options');
     
     %Update internal file list
     if size(autoroi.to_process_list,1) == 1
