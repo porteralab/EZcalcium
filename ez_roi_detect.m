@@ -323,7 +323,7 @@ for i = 1:file_num
     [Ain, Cin, bin, fin, center] = initialize_components(Y, K, tau, options, P); %Initilize components
     Cn =  correlation_image(Y);
     
-    if autoroi.refine_components
+    if autoroi.manual_refine
         [Ain,Cin,~] = manually_refine_components(Y,Ain,Cin,center,Cn,tau,options); %Launch manual refinement
     end
     
@@ -600,7 +600,7 @@ autoroi.menu_regression=get(handles.menu_regression,'Value');
 
 %============Read Check Boxes===========
 %Manual Refinement
-autoroi.refine_components=get(handles.manual_refine,'Value');
+autoroi.manual_refine=get(handles.manual_refine,'Value');
 
 %Display Contours
 autoroi.check_contours=get(handles.check_contours,'Value');
@@ -661,17 +661,13 @@ set(handles.menu_regression,'Value',autoroi.menu_regression);
 
 %============Read Check Boxes===========
 %Manual Refinement
-if exist('autoroi.manual_refine','var')
-    set(handles.manual_refine,'Value',autoroi.refine_components);
-end
+set(handles.manual_refine,'Value',autoroi.manual_refine);
 
 %Display Contours
 set(handles.check_contours,'Value',autoroi.check_contours);
 
 %Display Kept ROIs
-if exist('autoroi.check_map','var')
-    set(handles.check_map,'Value',autoroi.check_map);
-end
+set(handles.check_map,'Value',autoroi.check_map);
 
 %Display Center
 set(handles.use_classifier,'Value',autoroi.use_classifier);
