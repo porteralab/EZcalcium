@@ -279,6 +279,11 @@ for i = 1:file_num
     [fpath,fname] = fileparts(filename);
     filename_mcor = fullfile(fpath,[fname '_mcor.tif']);
     
+    if isfile(filename_mcor)
+        msgbox(['File ' filename_mcor ' already exist. Will improvise a different file name...'],'Warning')
+        filename_mcor = fullfile(fpath,[fname '_mcor_' datestr(now,30) '.tif']);
+    end
+    
     if motcor.non_rigid == 0
         options = NoRMCorreSetParms(...
             'd1',FOV(1),...
