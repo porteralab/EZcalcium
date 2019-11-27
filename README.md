@@ -15,7 +15,7 @@ EZcalcium contains three main modules: **Motion Correction**, **ROI Detection**,
 
 We recommend 64-bit MATLAB R2018a (version 9.4) or newer on any operating system for using the EZcalcium within MATLAB. The toolbox was finalized and tested heavily in R2018a and is likely to be the most compatible without modification in that environment.
 
-The following MATLAB toolboxes are required: Signal Processing, Statistics, and Parallel Computing.
+The following MATLAB toolboxes are required: Image Processing, Parallel Computing, Signal Processing, and Statistics and Machine Learning.
 
 EZcalcium uses functions from the [CaImAn toolbox](https://github.com/porteralab/CaImAn-MATLAB) and the [NoRMCorre toolbox](https://github.com/porteralab/NoRMCorre). Make sure you also clone/download them and have them in the MATLAB PATH as well.
 
