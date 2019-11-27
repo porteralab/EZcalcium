@@ -967,31 +967,35 @@ Z_mod_refined=handles.ROI.Z_mod(handles.ROI.included_ROIs,:); %Z-score data
 
 %CSV Export
 if csv_save
-    refined_filename=[handles.full_filepath(1:end-4) '_refined_raw.csv'];
-    csvwrite(refined_filename,F_raw_refined);
-    refined_filename=[handles.full_filepath(1:end-4) '_refined_fit.csv'];
-    csvwrite(refined_filename,F_inferred_refined);
-    refined_filename=[handles.full_filepath(1:end-4) '_refined_decon.csv'];
-    csvwrite(refined_filename,S_deconv_refined);
-    refined_filename=[handles.full_filepath(1:end-4) '_refined_Zmod.csv'];
-    csvwrite(refined_filename,Z_mod_refined);
+    filename_refined=[handles.full_filepath(1:end-4) '_refined_raw.csv'];
+    csvwrite(filename_refined,F_raw_refined);
+    filename_refined=[handles.full_filepath(1:end-4) '_refined_fit.csv'];
+    csvwrite(filename_refined,F_inferred_refined);
+    filename_refined=[handles.full_filepath(1:end-4) '_refined_decon.csv'];
+    csvwrite(filename_refined,S_deconv_refined);
+    filename_refined=[handles.full_filepath(1:end-4) '_refined_Zmod.csv'];
+    csvwrite(filename_refined,Z_mod_refined);
     % refined_filename=[handles.full_filepath(1:end-4) '_refined_centers.csv'];
     % csvwrite(refined_filename,ROI_centers);
 end
 
 %MAT Export
 if mat_save
-    refined_filename=[handles.full_filepath(1:end-4) '_refined.mat'];
-    save(refined_filename,'F_inferred_refined','F_raw_refined','S_deconv_refined','F','Z_mod_refined');
+    filename_refined=[handles.full_filepath(1:end-4) '_refined.mat'];
+    if isfile(filename_refined)
+        msgbox(['File ' filename_refined ' already exist. Will improvise a different file name...'],'Warning')
+        filename_refined = [handles.full_filepath(1:end-4) '_refined_' datestr(now,30) '.mat'];
+    end
+    save(filename_refined,'F_inferred_refined','F_raw_refined','S_deconv_refined','F','Z_mod_refined');
 end
 
 %XLSX Export
 if xlsx_save
-    refined_filename=[handles.full_filepath(1:end-4) '_refined.xlsx'];
-    xlswrite(refined_filename,F_raw_refined,'Raw');
-    xlswrite(refined_filename,F_inferred_refined,'Fit');
-    xlswrite(refined_filename,S_deconv_refined,'Deconvolved');
-    xlswrite(refined_filename,Z_mod_refined,'Z_mod');
+    filename_refined=[handles.full_filepath(1:end-4) '_refined.xlsx'];
+    xlswrite(filename_refined,F_raw_refined,'Raw');
+    xlswrite(filename_refined,F_inferred_refined,'Fit');
+    xlswrite(filename_refined,S_deconv_refined,'Deconvolved');
+    xlswrite(filename_refined,Z_mod_refined,'Z_mod');
     % xlswrite(refined_filename,ROI_centers,'Centers');
 end
 

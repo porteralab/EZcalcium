@@ -396,7 +396,12 @@ for i = 1:file_num
     end
     
     %------Save .mat file----
-    save([filename(1:end-4) '_roi.mat'],'Cn','A_or','C_or','S_or','P_or','F_raw','F_inferred','S_deconv','options');
+    filename_roi = [filename(1:end-4) '_roi.mat'];
+    if isfile(filename_roi)
+        msgbox(['File ' filename_roi ' already exist. Will improvise a different file name...'],'Warning')
+        filename_roi = [filename(1:end-4) '_roi_' datestr(now,30) '.mat'];
+    end
+    save(filename_roi,'Cn','A_or','C_or','S_or','P_or','F_raw','F_inferred','S_deconv','options');
     
     %Update internal file list
     if size(autoroi.to_process_list,1) == 1
