@@ -242,6 +242,8 @@ function run_button_Callback(hObject, eventdata, handles)
 
 % This runs the roi detection
 
+set(handles.run_button, 'Enable', 'off'); drawnow
+
 autoroi = parse_autoroi(handles,2); %read GUI
 
 %Move files to process highlight to first position
@@ -418,6 +420,8 @@ for i = 1:file_num
     set(handles.processed_list,'String',autoroi.processed_list);
     drawnow %Updates GUI
 end
+
+set(handles.run_button, 'Enable', 'on'); drawnow
 
 function [F_raw,F_inferred] = construct_traces(Y,A,C,b,f,options)
 Y = double(Y);

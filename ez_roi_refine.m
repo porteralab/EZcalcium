@@ -88,6 +88,8 @@ function run_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+set(handles.run, 'Enable', 'off'); drawnow
+
 refine_roi=parse_refine_roi(handles); %read GUI
 
 %=========Re-calculate data from load button===================
@@ -212,10 +214,9 @@ for ROI=1:size(handles.ROI.F_raw,1)
     view_ROI_function(hObject, eventdata, handles) %Load ROI
     
     
-end %End the ROI loop
+end
 
-%Autosave new data
-% save(handles.full_filepath);
+set(handles.run, 'Enable', 'on'); drawnow
 
 
 
