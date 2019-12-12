@@ -630,13 +630,15 @@ function figure1_CloseRequestFcn(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-motcor = parse_motcor(handles,2);
-filepath = fileparts([mfilename('fullpath') '.m']);
-if isfile(fullfile(filepath,'ez_settings.mat'))
-    save(fullfile(filepath,'ez_settings.mat'),'motcor','-append')
-else
-    save(fullfile(filepath,'ez_settings.mat'),'motcor')
+try
+    motcor = parse_motcor(handles,2);
+    filepath = fileparts([mfilename('fullpath') '.m']);
+    if isfile(fullfile(filepath,'ez_settings.mat'))
+        save(fullfile(filepath,'ez_settings.mat'),'motcor','-append')
+    else
+        save(fullfile(filepath,'ez_settings.mat'),'motcor')
+    end
+catch
 end
-
 % Hint: delete(hObject) closes the figure
 delete(hObject);

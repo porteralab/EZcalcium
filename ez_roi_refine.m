@@ -2087,13 +2087,15 @@ function figure1_CloseRequestFcn(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-refine_roi = parse_refine_roi(handles);
-filepath = fileparts([mfilename('fullpath') '.m']);
-if isfile(fullfile(filepath,'ez_settings.mat'))
-    save(fullfile(filepath,'ez_settings.mat'),'refine_roi','-append')
-else
-    save(fullfile(filepath,'ez_settings.mat'),'refine_roi')
+try
+    refine_roi = parse_refine_roi(handles);
+    filepath = fileparts([mfilename('fullpath') '.m']);
+    if isfile(fullfile(filepath,'ez_settings.mat'))
+        save(fullfile(filepath,'ez_settings.mat'),'refine_roi','-append')
+    else
+        save(fullfile(filepath,'ez_settings.mat'),'refine_roi')
+    end
+catch
 end
-
 % Hint: delete(hObject) closes the figure
 delete(hObject);

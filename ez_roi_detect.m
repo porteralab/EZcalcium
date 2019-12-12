@@ -1065,12 +1065,15 @@ function figure1_CloseRequestFcn(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-autoroi = parse_autoroi(handles,2);
-filepath = fileparts([mfilename('fullpath') '.m']);
-if isfile(fullfile(filepath,'ez_settings.mat'))
-    save(fullfile(filepath,'ez_settings.mat'),'autoroi','-append')
-else
-    save(fullfile(filepath,'ez_settings.mat'),'autoroi')
+try
+    autoroi = parse_autoroi(handles,2);
+    filepath = fileparts([mfilename('fullpath') '.m']);
+    if isfile(fullfile(filepath,'ez_settings.mat'))
+        save(fullfile(filepath,'ez_settings.mat'),'autoroi','-append')
+    else
+        save(fullfile(filepath,'ez_settings.mat'),'autoroi')
+    end
+catch
 end
 
 % Hint: delete(hObject) closes the figure
