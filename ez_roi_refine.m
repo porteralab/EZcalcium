@@ -304,9 +304,9 @@ if iscell(add_file)||ischar(add_file) %Checks to see if anything was selected
     %Load Data
     handles.full_filepath=[add_filepath add_file]; %Concatenate file path and name
     handles.ROI=load(handles.full_filepath); %Creates a new handle, ROI, and loads file data into it
-    guidata( hObject, handles); %Saves new handle so that it can be passed within the GUI
+    guidata(hObject, handles); %Saves new handle so that it can be passed within the GUI
     
-    if  isfield(handles.ROI,'F_raw') %check to make sure data are compatible and raw data available
+    if isfield(handles.ROI,'F_raw') %check to make sure data are compatible and raw data available
         roi_number=size(handles.ROI.F_raw,1); %Find longest length of data
     else
         warning_text='The selected file is not a compatible data file. Compatible data files should end with _roi.mat';
@@ -960,7 +960,6 @@ for i=1:size(ROI_list,1)
     end
 end
 
-F=handles.ROI.F_raw(handles.ROI.included_ROIs,:)'; %For legacy Portera Lab compatibility. Feel free to comment this out.
 F_inferred_refined=handles.ROI.F_inferred(handles.ROI.included_ROIs,:); %Fitted data
 F_raw_refined=handles.ROI.F_raw(handles.ROI.included_ROIs,:); %Raw data
 S_deconv_refined=handles.ROI.S_deconv(handles.ROI.included_ROIs,:); %Deconvolved data
@@ -987,7 +986,7 @@ if mat_save
         msgbox(['File ' filename_refined ' already exist. Will improvise a different file name...'],'Warning')
         filename_refined = [handles.full_filepath(1:end-4) '_refined_' datestr(now,30) '.mat'];
     end
-    save(filename_refined,'F_inferred_refined','F_raw_refined','S_deconv_refined','F','Z_mod_refined');
+    save(filename_refined,'F_inferred_refined','F_raw_refined','S_deconv_refined','Z_mod_refined');
 end
 
 %XLSX Export
