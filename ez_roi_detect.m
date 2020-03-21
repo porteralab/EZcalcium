@@ -55,9 +55,9 @@ function ez_roi_detect_OpeningFcn(hObject, eventdata, handles, varargin)
 filepath = fileparts([mfilename('fullpath') '.m']);
 settings_file = fullfile(filepath,'ez_settings.mat');
 if isfile(settings_file)
-    if ismember('autoroi',who('-file',settings_file))
-        load(fullfile(filepath,'ez_settings.mat'),'autoroi')
-        write_autoroi(handles,autoroi,2)
+    if ismember('roi_detect_settings',who('-file',settings_file))
+        load(fullfile(filepath,'ez_settings.mat'),'roi_detect_settings')
+        write_autoroi(handles,roi_detect_settings,2)
     end
 end
 
@@ -105,7 +105,7 @@ if iscell(add_file)||ischar(add_file) %Checks to see if anything was selected
     for i = 1:length(add_file)
         full_add_file = [add_filepath add_file{i}]; %update full names
         
-        if sum(ismember(autoroi.to_process_list,full_add_file)) > 0%If repeats, warning_text update
+        if sum(ismember(autoroi.to_process_list,full_add_file)) > 0 %If repeats, warning_text update
             warning_text = ['File: ' add_file{i} ' is already on the list.'];
             msgbox(warning_text,'Warning');
         else
@@ -256,7 +256,6 @@ for i = 1:file_num
     filename = autoroi.to_process_list{1};
     disp(['Starting ROI detection for ' filename]);
     [fpath,fname] = fileparts(filename);
-    filename_roi = fullfile(fpath,[fname '_roi.mat']);
     
     Y = read_file(filename);
     
@@ -398,12 +397,20 @@ for i = 1:file_num
     end
     
     %------Save .mat file----
-    filename_roi = [filename(1:end-4) '_roi.mat'];
-    if isfile(filename_roi)
-        msgbox(['File ' filename_roi ' already exist. Will improvise a different file name...'],'Warning')
-        filename_roi = [filename(1:end-4) '_roi_' datestr(now,30) '.mat'];
+    roi_detect_settings = rmfield(autoroi,{'to_process_list','processed_list'}); %Prepare the settings variable to be saved.
+    
+    filename_mat = [filename(1:end-4) '.mat'];
+    if isfile(filename_mat)
+        if ismember('F_raw',who('-file',filename_mat))
+            msgbox(['It looks like file ' filename_mat ' already have saved ROI detection data. Will improvise a different file name to avoid overwriting.'],'Warning')
+            filename_mat = [filename(1:end-4) '_' datestr(now,30) '.mat'];
+            save(filename_mat,'Cn','A_or','C_or','S_or','P_or','F_raw','F_inferred','S_deconv','roi_detect_settings');
+        else
+            save(filename_mat,'Cn','A_or','C_or','S_or','P_or','F_raw','F_inferred','S_deconv','roi_detect_settings','-append');
+        end
+    else
+        save(filename_mat,'Cn','A_or','C_or','S_or','P_or','F_raw','F_inferred','S_deconv','roi_detect_settings');
     end
-    save(filename_roi,'Cn','A_or','C_or','S_or','P_or','F_raw','F_inferred','S_deconv','options');
     
     %Update internal file list
     if size(autoroi.to_process_list,1) == 1
@@ -411,7 +418,7 @@ for i = 1:file_num
     else
         autoroi.to_process_list(1) = '';
     end
-    autoroi.processed_list = vertcat(autoroi.processed_list,cellstr(filename_roi));
+    autoroi.processed_list = vertcat(autoroi.processed_list,cellstr(filename_mat));
     
     %Update files to process list
     set(handles.to_process_list,'String',autoroi.to_process_list);
@@ -546,7 +553,7 @@ function check_contours_Callback(hObject, eventdata, handles)
 function autoroi_save_settings(handles)
 %Manually save settings from GUI
 
-autoroi=parse_autoroi(handles,1); %reads GUI
+roi_detect_settings=parse_autoroi(handles,1); %reads GUI
 
 %Open save box
 [filename,filepath] = uiputfile('*.mat');
@@ -560,7 +567,7 @@ end
 full_filename=[filepath filename];
 
 %Write to .mat file
-save(full_filename,'autoroi');
+save(full_filename,'roi_detect_settings');
 
 
 function autoroi_load_settings(handles)
@@ -578,15 +585,15 @@ end
 full_filename=[filepath filename];
 
 %Load .mat file
-load(full_filename,'autoroi');
+load(full_filename,'roi_detect_settings');
 
 %Check if valid save file
-if exist('autoroi','var')~=1
+if exist('roi_detect_settings','var') ~= 1
     warning_text='The selected file is not a valid settings file.';
     msgbox(warning_text,'Warning');
 end
 
-write_autoroi(handles,autoroi,1)
+write_autoroi(handles,roi_detect_settings,1)
 
 
 function autoroi = parse_autoroi(handles,parse_mode)
@@ -1066,12 +1073,12 @@ function figure1_CloseRequestFcn(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 try
-    autoroi = parse_autoroi(handles,2);
+    roi_detect_settings = parse_autoroi(handles,2);
     filepath = fileparts([mfilename('fullpath') '.m']);
     if isfile(fullfile(filepath,'ez_settings.mat'))
-        save(fullfile(filepath,'ez_settings.mat'),'autoroi','-append')
+        save(fullfile(filepath,'ez_settings.mat'),'roi_detect_settings','-append')
     else
-        save(fullfile(filepath,'ez_settings.mat'),'autoroi')
+        save(fullfile(filepath,'ez_settings.mat'),'roi_detect_settings')
     end
 catch
 end

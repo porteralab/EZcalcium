@@ -55,9 +55,9 @@ function ez_roi_refine_OpeningFcn(hObject, eventdata, handles, varargin)
 filepath = fileparts([mfilename('fullpath') '.m']);
 settings_file = fullfile(filepath,'ez_settings.mat');
 if isfile(settings_file)
-    if ismember('refine_roi',who('-file',settings_file))
-        load(fullfile(filepath,'ez_settings.mat'),'refine_roi')
-        write_refine_roi(handles,refine_roi)
+    if ismember('roi_refine_settings',who('-file',settings_file))
+        load(fullfile(filepath,'ez_settings.mat'),'roi_refine_settings')
+        write_refine_roi(handles,roi_refine_settings)
     end
 end
 
@@ -90,41 +90,41 @@ function run_Callback(hObject, eventdata, handles)
 
 set(handles.run, 'Enable', 'off'); drawnow
 
-refine_roi=parse_refine_roi(handles); %read GUI
+refine_roi = parse_refine_roi(handles); %read GUI
 
 %=========Re-calculate data from load button===================
 %------Calculate Baseline Stability - First vs Last-------
-frames=size(handles.ROI.F_raw,2); %calculate number of frames in data
-roi_number=size(handles.ROI.F_raw,1);
+frames = size(handles.ROI.F_raw,2); %calculate number of frames in data
+roi_number = size(handles.ROI.F_raw,1);
 
 %User input sliding window number of frames for detecting baseline ====
-baseline_window=str2double(get(handles.input_baseline_window,'string'));
+baseline_window = str2double(get(handles.input_baseline_window,'string'));
 %calculate Z_mod
-handles.ROI.Z_mod=ez_ZF(handles.ROI.F_raw,baseline_window);
+handles.ROI.Z_mod = ez_ZF(handles.ROI.F_raw,baseline_window);
 %First Frame End
-first_frame_start=1;
-first_frame_end=floor(str2double(get(handles.input_baseline_stability_percent,'string'))/100*frames);
+first_frame_start = 1;
+first_frame_end = floor(str2double(get(handles.input_baseline_stability_percent,'string'))/100*frames);
 %Last Frame Start
-last_frame_start=frames-first_frame_end+1;
-last_frame_end=frames;
+last_frame_start = frames-first_frame_end+1;
+last_frame_end = frames;
 %Calculate First Baseline
-[~,first_baseline,~,~]=ez_ZF(handles.ROI.Z_mod(:,first_frame_start:first_frame_end),baseline_window);
+[~,first_baseline,~,~] = ez_ZF(handles.ROI.Z_mod(:,first_frame_start:first_frame_end),baseline_window);
 %Calculate Last Baseline
-[~,last_baseline,~,~]=ez_ZF(handles.ROI.Z_mod(:,last_frame_start:last_frame_end),baseline_window);
+[~,last_baseline,~,~] = ez_ZF(handles.ROI.Z_mod(:,last_frame_start:last_frame_end),baseline_window);
 %Calculate Stability (difference in Z score of baselines)
-handles.ROI.Baseline_stability=abs(first_baseline-last_baseline);
+handles.ROI.Baseline_stability = abs(first_baseline-last_baseline);
 
 %--------Calculate Significant Activity-----------
-activity_value=str2double(get(handles.input_dF_activity_value,'string')); %get values from GUI
-activity_frames=str2double(get(handles.input_dF_activity_frames,'string')); %get values from GUI
+activity_value = str2double(get(handles.input_dF_activity_value,'string')); %get values from GUI
+activity_frames = str2double(get(handles.input_dF_activity_frames,'string')); %get values from GUI
 
 significant_frames = handles.ROI.Z_mod > activity_value;
 handles.ROI.active_ROI = max(movsum(significant_frames,activity_frames,2,'Endpoints','discard'),[],2) == activity_frames;
 
 %=====End Re-calculate data from load button===================
 
-for ROI=1:size(handles.ROI.F_raw,1)
-    borderline_count=0;
+for ROI = 1:size(handles.ROI.F_raw,1)
+    borderline_count = 0;
     set(handles.ROI_list,'Value',ROI); %reset selection bar to first ROI
     drawnow; %Update GUI
     
@@ -132,20 +132,20 @@ for ROI=1:size(handles.ROI.F_raw,1)
     view_ROI_function(hObject, eventdata, handles) %Load ROI
     
     %Check for whether or not ROI is active
-    if handles.ROI.active_ROI(ROI)==0
+    if handles.ROI.active_ROI(ROI) == 0
         borderline_count=9999999;
     end
     
-    if get(handles.ROI_baseline_stability,'BackgroundColor')==[0.6350, 0.0780, 0.1840] %Check for red backgrounds
-        borderline_count=9999999;%Mark for exclusion
-    elseif get(handles.ROI_baseline_stability,'BackgroundColor')==[1 1 0] %Check for yellow backgrounds
-        borderline_count=borderline_count+1;
+    if get(handles.ROI_baseline_stability,'BackgroundColor') == [0.6350, 0.0780, 0.1840] %Check for red backgrounds
+        borderline_count = 9999999;%Mark for exclusion
+    elseif get(handles.ROI_baseline_stability,'BackgroundColor') == [1 1 0] %Check for yellow backgrounds
+        borderline_count = borderline_count+1;
     end
     
-    if get(handles.ROI_roundness,'BackgroundColor')==[0.6350, 0.0780, 0.1840] %Check for red backgrounds
-        borderline_count=9999999;%Mark for exclusion
-    elseif get(handles.ROI_roundness,'BackgroundColor')==[1 1 0] %Check for yellow backgrounds
-        borderline_count=borderline_count+1;
+    if get(handles.ROI_roundness,'BackgroundColor') == [0.6350, 0.0780, 0.1840] %Check for red backgrounds
+        borderline_count = 9999999;%Mark for exclusion
+    elseif get(handles.ROI_roundness,'BackgroundColor') == [1 1 0] %Check for yellow backgrounds
+        borderline_count = borderline_count+1;
     end
     
     if get(handles.ROI_oblongness,'BackgroundColor')==[0.6350, 0.0780, 0.1840] %Check for red backgrounds
@@ -946,60 +946,66 @@ function export_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-%Check export options
-csv_save=get(handles.box_csv,'value');
-mat_save=get(handles.box_mat,'value');
-xlsx_save=get(handles.box_xlsx,'value');
+%Save ROI refine settings in the MAT file
+filename_mat = [handles.full_filepath(1:end-4) '.mat'];
+roi_refine_settings = parse_refine_roi(handles);
+save(filename_mat,'roi_refine_settings','-append');
 
-ROI_list=get(handles.ROI_list,'String');
+%Check export options
+csv_save = get(handles.box_csv,'value');
+mat_save = get(handles.box_mat,'value');
+xlsx_save = get(handles.box_xlsx,'value');
+
+ROI_list = get(handles.ROI_list,'String');
 %=====Select only the ROIs that have not been excluded=====
-handles.ROI.included_ROIs=[];
-for i=1:size(ROI_list,1)
+handles.ROI.included_ROIs = [];
+for i = 1:size(ROI_list,1)
     if ~contains(ROI_list(i,:),'X')
-        handles.ROI.included_ROIs(end+1)=i;
+        handles.ROI.included_ROIs(end+1) = i;
     end
 end
 
-F_inferred_refined=handles.ROI.F_inferred(handles.ROI.included_ROIs,:); %Fitted data
-F_raw_refined=handles.ROI.F_raw(handles.ROI.included_ROIs,:); %Raw data
-S_deconv_refined=handles.ROI.S_deconv(handles.ROI.included_ROIs,:); %Deconvolved data
-Z_mod_refined=handles.ROI.Z_mod(handles.ROI.included_ROIs,:); %Z-score data
+F_inferred_refined = handles.ROI.F_inferred(handles.ROI.included_ROIs,:); %Fitted data
+F_raw_refined = handles.ROI.F_raw(handles.ROI.included_ROIs,:); %Raw data
+S_deconv_refined = handles.ROI.S_deconv(handles.ROI.included_ROIs,:); %Deconvolved data
+Z_mod_refined = handles.ROI.Z_mod(handles.ROI.included_ROIs,:); %Modified Z-score data
 
 %CSV Export
 if csv_save
-    filename_refined=[handles.full_filepath(1:end-4) '_refined_raw.csv'];
+    filename_refined = [handles.full_filepath(1:end-4) '_refined_raw.csv'];
     csvwrite(filename_refined,F_raw_refined);
-    filename_refined=[handles.full_filepath(1:end-4) '_refined_fit.csv'];
+    filename_refined = [handles.full_filepath(1:end-4) '_refined_fit.csv'];
     csvwrite(filename_refined,F_inferred_refined);
-    filename_refined=[handles.full_filepath(1:end-4) '_refined_decon.csv'];
+    filename_refined = [handles.full_filepath(1:end-4) '_refined_decon.csv'];
     csvwrite(filename_refined,S_deconv_refined);
-    filename_refined=[handles.full_filepath(1:end-4) '_refined_Zmod.csv'];
+    filename_refined = [handles.full_filepath(1:end-4) '_refined_Zmod.csv'];
     csvwrite(filename_refined,Z_mod_refined);
-    % refined_filename=[handles.full_filepath(1:end-4) '_refined_centers.csv'];
+    % refined_filename = [handles.full_filepath(1:end-4) '_refined_centers.csv'];
     % csvwrite(refined_filename,ROI_centers);
 end
 
 %MAT Export
 if mat_save
-    filename_refined=[handles.full_filepath(1:end-4) '_refined.mat'];
-    if isfile(filename_refined)
-        msgbox(['File ' filename_refined ' already exist. Will improvise a different file name...'],'Warning')
-        filename_refined = [handles.full_filepath(1:end-4) '_refined_' datestr(now,30) '.mat'];
+    if isfile(filename_mat)
+        if ismember('F_raw_refined',who('-file',filename_mat))
+            msgbox(['It looks like file ' filename_mat ' already have saved ROI refinement data. Will improvise a different file name to avoid overwriting.'],'Warning')
+            filename_mat = [handles.full_filepath(1:end-4) '_' datestr(now,30) '.mat'];
+            save(filename_mat,'F_inferred_refined','F_raw_refined','S_deconv_refined','Z_mod_refined','roi_refine_settings');
+        else
+            save(filename_mat,'F_inferred_refined','F_raw_refined','S_deconv_refined','Z_mod_refined','-append');
+        end
     end
-    save(filename_refined,'F_inferred_refined','F_raw_refined','S_deconv_refined','Z_mod_refined');
 end
 
 %XLSX Export
 if xlsx_save
-    filename_refined=[handles.full_filepath(1:end-4) '_refined.xlsx'];
+    filename_refined = [handles.full_filepath(1:end-4) '_refined.xlsx'];
     xlswrite(filename_refined,F_raw_refined,'Raw');
     xlswrite(filename_refined,F_inferred_refined,'Fit');
     xlswrite(filename_refined,S_deconv_refined,'Deconvolved');
     xlswrite(filename_refined,Z_mod_refined,'Z_mod');
     % xlswrite(refined_filename,ROI_centers,'Centers');
 end
-
-% save(handles.full_filepath);
 
 
 
@@ -1675,7 +1681,7 @@ function box_xlsx_Callback(hObject, eventdata, handles)
 function refine_roi_save_settings(handles)
 %Manually save settings from GUI
 
-refine_roi = parse_refine_roi(handles); %reads GUI
+roi_refine_settings = parse_refine_roi(handles); %reads GUI
 
 %Open save box
 [filename,filepath] = uiputfile('*.mat');
@@ -1689,7 +1695,7 @@ end
 full_filename = [filepath filename];
 
 %Write to .mat file
-save(full_filename,'refine_roi');
+save(full_filename,'roi_refine_settings');
 
 
 function refine_roi_load_settings(handles)
@@ -1699,23 +1705,23 @@ function refine_roi_load_settings(handles)
 [filename,filepath] = uigetfile('*.mat');
 
 %Check if anything was selected
-if filename==0
+if filename == 0
     return
 end
 
 %Concatenate file name
-full_filename=[filepath filename];
+full_filename = [filepath filename];
 
 %Load .mat file
-load(full_filename,'refine_roi');
+load(full_filename,'roi_refine_settings');
 
 %Check if valid save file
-if exist('refine_roi','var')~=1
-    warning_text='The selected file is not a valid settings file.';
+if exist('roi_refine_settings','var') ~= 1
+    warning_text = 'The selected file is not a valid settings file.';
     msgbox(warning_text,'Warning');
 end
 
-write_refine_roi(handles,refine_roi)
+write_refine_roi(handles,roi_refine_settings)
 
 
 function refine_roi = parse_refine_roi(handles)
@@ -2087,12 +2093,12 @@ function figure1_CloseRequestFcn(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 try
-    refine_roi = parse_refine_roi(handles);
+    roi_refine_settings = parse_refine_roi(handles);
     filepath = fileparts([mfilename('fullpath') '.m']);
     if isfile(fullfile(filepath,'ez_settings.mat'))
-        save(fullfile(filepath,'ez_settings.mat'),'refine_roi','-append')
+        save(fullfile(filepath,'ez_settings.mat'),'roi_refine_settings','-append')
     else
-        save(fullfile(filepath,'ez_settings.mat'),'refine_roi')
+        save(fullfile(filepath,'ez_settings.mat'),'roi_refine_settings')
     end
 catch
 end

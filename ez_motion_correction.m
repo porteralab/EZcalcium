@@ -55,9 +55,9 @@ function ez_motion_correction_OpeningFcn(hObject, eventdata, handles, varargin)
 filepath = fileparts([mfilename('fullpath') '.m']);
 settings_file = fullfile(filepath,'ez_settings.mat');
 if isfile(settings_file)
-    if ismember('motcor',who('-file',settings_file))
-        load(fullfile(filepath,'ez_settings.mat'),'motcor')
-        write_motcor(handles,motcor,2)
+    if ismember('motcor_settings',who('-file',settings_file))
+        load(fullfile(filepath,'ez_settings.mat'),'motcor_settings')
+        write_motcor(handles,motcor_settings,2)
     end
 end
 
@@ -311,6 +311,11 @@ for i = 1:file_num
     
     % Run motion correction
     normcorre_batch_even(filename,options)
+    
+    % Save settings in MAT file
+    filename_mat = [filename_mcor(1:end-4) '.mat'];
+    motcor_settings = rmfield(motcor,{'to_process_list','processed_list'});
+    save(filename_mat,'motcor_settings')
     
     %Update internal file list
     if size(motcor.to_process_list,1) == 1
@@ -631,12 +636,12 @@ function figure1_CloseRequestFcn(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 try
-    motcor = parse_motcor(handles,2);
+    motcor_settings = parse_motcor(handles,2);
     filepath = fileparts([mfilename('fullpath') '.m']);
     if isfile(fullfile(filepath,'ez_settings.mat'))
-        save(fullfile(filepath,'ez_settings.mat'),'motcor','-append')
+        save(fullfile(filepath,'ez_settings.mat'),'motcor_settings','-append')
     else
-        save(fullfile(filepath,'ez_settings.mat'),'motcor')
+        save(fullfile(filepath,'ez_settings.mat'),'motcor_settings')
     end
 catch
 end
