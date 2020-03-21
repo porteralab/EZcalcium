@@ -404,12 +404,12 @@ for i = 1:file_num
         if ismember('F_raw',who('-file',filename_mat))
             msgbox(['It looks like file ' filename_mat ' already have saved ROI detection data. Will improvise a different file name to avoid overwriting.'],'Warning')
             filename_mat = [filename(1:end-4) '_' datestr(now,30) '.mat'];
-            save(filename_mat,'Cn','A_or','C_or','S_or','P_or','F_raw','F_inferred','S_deconv','roi_detect_settings');
+            save(filename_mat,'Cn','A_or','C_or','S_or','P_or','F_raw','F_inferred','S_deconv','options','roi_detect_settings');
         else
-            save(filename_mat,'Cn','A_or','C_or','S_or','P_or','F_raw','F_inferred','S_deconv','roi_detect_settings','-append');
+            save(filename_mat,'Cn','A_or','C_or','S_or','P_or','F_raw','F_inferred','S_deconv','options','roi_detect_settings','-append');
         end
     else
-        save(filename_mat,'Cn','A_or','C_or','S_or','P_or','F_raw','F_inferred','S_deconv','roi_detect_settings');
+        save(filename_mat,'Cn','A_or','C_or','S_or','P_or','F_raw','F_inferred','S_deconv','options','roi_detect_settings');
     end
     
     %Update internal file list

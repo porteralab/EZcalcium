@@ -491,7 +491,7 @@ end
 function motcor_save_settings(handles)
 %Manually save settings from GUI
 
-motcor = parse_motcor(handles,1); %reads GUI
+motcor_settings = parse_motcor(handles,1); %reads GUI
 
 %Open save box
 [filename,filepath] = uiputfile('*.mat');
@@ -505,7 +505,7 @@ end
 full_filename = [filepath filename];
 
 %Write to .mat file
-save(full_filename,'motcor');
+save(full_filename,'motcor_settings');
 
 
 function motcor_load_settings(handles)
@@ -523,15 +523,15 @@ end
 full_filename = [filepath filename];
 
 %Load .mat file
-load(full_filename,'motcor');
+load(full_filename,'motcor_settings');
 
 %Check if valid save file
-if ~exist('motcor','var')
+if ~exist('motcor_settings','var')
     warning_text = 'The selected file is not a valid settings file.';
     msgbox(warning_text,'Warning')
 end
 
-write_motcor(handles,motcor,1)
+write_motcor(handles,motcor_settings,1)
 
 
 function motcor = parse_motcor(handles,parse_mode)
