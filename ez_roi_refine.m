@@ -52,6 +52,15 @@ function ez_roi_refine_OpeningFcn(hObject, eventdata, handles, varargin)
 % handles    structure with handles and user data (see GUIDATA)
 % varargin   command line arguments to ez_roi_refine (see VARARGIN)
 
+% Choose default command line output for ez_roi_refine
+handles.output = hObject;
+
+% Update handles structure
+guidata(hObject, handles);
+
+% UIWAIT makes ez_roi_refine wait for user response (see UIRESUME)
+% uiwait(handles.figure1);
+
 filepath = fileparts([mfilename('fullpath') '.m']);
 settings_file = fullfile(filepath,'ez_settings.mat');
 if isfile(settings_file)
@@ -72,15 +81,6 @@ if ~isempty(warning_text)
     warning_text = ['It seems like you do not have the following MATLAB toolboxes installed: ' newline warning_text newline newline 'ROI Refinement will not work without these toolboxes.'];
     msgbox(warning_text,'Warning');
 end
-
-% Choose default command line output for ez_roi_refine
-handles.output = hObject;
-
-% Update handles structure
-guidata(hObject, handles);
-
-% UIWAIT makes ez_roi_refine wait for user response (see UIRESUME)
-% uiwait(handles.figure1);
 
 
 % --- Outputs from this function are returned to the command line.

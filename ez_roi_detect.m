@@ -52,6 +52,15 @@ function ez_roi_detect_OpeningFcn(hObject, eventdata, handles, varargin)
 % handles    structure with handles and user data (see GUIDATA)
 % varargin   command line arguments to ez_roi_detect (see VARARGIN)
 
+% Choose default command line output for ez_roi_detect
+handles.output = hObject;
+
+% Update handles structure
+guidata(hObject, handles);
+
+% UIWAIT makes ez_roi_detect wait for user response (see UIRESUME)
+% uiwait(handles.figure1);
+
 filepath = fileparts([mfilename('fullpath') '.m']);
 settings_file = fullfile(filepath,'ez_settings.mat');
 if isfile(settings_file)
@@ -79,14 +88,10 @@ if ~isempty(warning_text)
     msgbox(warning_text,'Warning');
 end
 
-% Choose default command line output for ez_roi_detect
-handles.output = hObject;
-
-% Update handles structure
-guidata(hObject, handles);
-
-% UIWAIT makes ez_roi_detect wait for user response (see UIRESUME)
-% uiwait(handles.figure1);
+if ~exist('CNMFSetParms.m','file')
+    warning_text = 'Cannot find CaImAn on MATLAB path. Please make sure you download CaImAn-MATLAB from https://github.com/porteralab/CaImAn-MATLAB and add it to MATLAB path. ROI Detection will not work without doing this.';
+    msgbox(warning_text,'Warning');
+end
 
 
 % --- Outputs from this function are returned to the command line.

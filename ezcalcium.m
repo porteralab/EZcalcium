@@ -77,7 +77,17 @@ if ~license('test','statistics_toolbox')
     warning_text = [warning_text newline '    Statistics and Machine Learning Toolbox'];
 end
 if ~isempty(warning_text)
-    warning_text = ['It seems like you do not have the following MATLAB toolboxes installed: ' newline warning_text newline newline 'EZcalcium will not work without these toolboxes.'];
+    warning_text = ['It seems like you do not have the following MATLAB toolboxes installed: ' newline warning_text newline newline 'Some EZcalcium modules may not work without these toolboxes.'];
+    msgbox(warning_text,'Warning');
+end
+
+if ~exist('NoRMCorreSetParms.m','file')
+    warning_text = 'Cannot find NoRMCorre on MATLAB path. Please make sure you download NoRMCorre from https://github.com/porteralab/NoRMCorre and add it to MATLAB path. Motion Correction will not work without doing this.';
+    msgbox(warning_text,'Warning');
+end
+
+if ~exist('CNMFSetParms.m','file')
+    warning_text = 'Cannot find CaImAn on MATLAB path. Please make sure you download CaImAn-MATLAB from https://github.com/porteralab/CaImAn-MATLAB and add it to MATLAB path. ROI Detection will not work without doing this.';
     msgbox(warning_text,'Warning');
 end
 

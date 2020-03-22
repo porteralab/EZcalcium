@@ -52,6 +52,15 @@ function ez_motion_correction_OpeningFcn(hObject, eventdata, handles, varargin)
 % handles    structure with handles and user data (see GUIDATA)
 % varargin   command line arguments to ez_motion_correction (see VARARGIN)
 
+% Choose default command line output for ez_motion_correction
+handles.output = hObject;
+
+% Update handles structure
+guidata(hObject, handles);
+
+% UIWAIT makes ez_motion_correction wait for user response (see UIRESUME)
+% uiwait(handles.figure1);
+
 filepath = fileparts([mfilename('fullpath') '.m']);
 settings_file = fullfile(filepath,'ez_settings.mat');
 if isfile(settings_file)
@@ -82,14 +91,10 @@ if ~isempty(warning_text)
     msgbox(warning_text,'Warning');
 end
 
-% Choose default command line output for ez_motion_correction
-handles.output = hObject;
-
-% Update handles structure
-guidata(hObject, handles);
-
-% UIWAIT makes ez_motion_correction wait for user response (see UIRESUME)
-% uiwait(handles.figure1);
+if ~exist('NoRMCorreSetParms.m','file')
+    warning_text = 'Cannot find NoRMCorre on MATLAB path. Please make sure you download NoRMCorre from https://github.com/porteralab/NoRMCorre and add it to MATLAB path. Motion Correction will not work without doing this.';
+    msgbox(warning_text,'Warning');
+end
 
 
 % --- Outputs from this function are returned to the command line.
