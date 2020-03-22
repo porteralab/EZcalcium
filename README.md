@@ -11,6 +11,8 @@ EZcalcium contains three main modules: **Motion Correction**, **ROI Detection**,
 
 **ROI Refinement** enables the user to inspect deteced ROIs, manually exclude ROIs, and use automated, customized ROI exclusion criteria, including spatial and activity-dependent metrics.
 
+Step-by-step instructions for using each modules can be found on the [EZcalcium GitHub Wiki page](https://github.com/porteralab/EZcalcium/wiki), as well as the included [HELP.pdf](https://github.com/porteralab/EZcalcium/blob/master/HELP.pdf) file.
+
 ## System requirements
 
 We recommend 64-bit MATLAB R2018a (version 9.4) or newer on any operating system for using the EZcalcium within MATLAB. The toolbox was finalized and tested heavily in R2018a and is likely to be the most compatible without modification in that environment.
