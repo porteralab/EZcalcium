@@ -309,7 +309,7 @@ if iscell(add_file)||ischar(add_file) %Checks to see if anything was selected
     if isfield(handles.ROI,'F_raw') %check to make sure data are compatible and raw data available
         roi_number=size(handles.ROI.F_raw,1); %Find longest length of data
     else
-        warning_text='The selected file is not a compatible data file. Compatible data files should end with _roi.mat';
+        warning_text='No ROI data are found in the selected file. Did you forget to run ROI Detection first?';
         msgbox(warning_text,'Warning');
     end
     
