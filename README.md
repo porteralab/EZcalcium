@@ -24,9 +24,11 @@ We recommend 64-bit MATLAB R2018a (version 9.4) or newer on Windows or macOS for
 * Signal Processing (required by **ROI Detection**)
 * Statistics and Machine Learning (required by **Motion Correction**, **ROI Detection** and **ROI Refinement**)
 
-EZcalcium heavily depends on [CaImAn](https://github.com/porteralab/CaImAn-MATLAB) and [NoRMCorre](https://github.com/porteralab/NoRMCorre). Make sure you also download and add them on the MATLAB path as well. To do so:
+To install EZcalcium:
 
-1. Go to the above two links and click the green "Clone or download" button of the right;
+1. Click the green "Clone or download" button on the top right of this page;
 2. Click "Download ZIP" to download the file;
 3. Extract the downloaded ZIP file to your favourite place;
 4. In MATLAB, go to HOME - ENVIRONMENT - Set Path, in the Set Path window, click "Add with Subfolders...", select the folder that contains the files you just extracted, then click "Save" and "Close".
+
+EZcalcium heavily depends on [CaImAn](https://github.com/porteralab/CaImAn-MATLAB) and [NoRMCorre](https://github.com/porteralab/NoRMCorre). Make sure you also download and add them on the MATLAB path as well by repeating the same procedures above.
