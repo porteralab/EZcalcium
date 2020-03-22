@@ -67,6 +67,21 @@ else
     set(handles.grid_size_popupmenu, 'Enable', 'off'); drawnow
 end
 
+warning_text = '';
+if ~license('test','image_toolbox')
+    warning_text = [warning_text newline '    Image Processing Toolbox'];
+end
+if ~license('test','distrib_computing_toolbox')
+    warning_text = [warning_text newline '    Parallel Computing Toolbox'];
+end
+if ~license('test','statistics_toolbox')
+    warning_text = [warning_text newline '    Statistics and Machine Learning Toolbox'];
+end
+if ~isempty(warning_text)
+    warning_text = ['It seems like you do not have the following MATLAB toolboxes installed: ' newline warning_text newline newline 'Motion Correction will not work without these toolboxes.'];
+    msgbox(warning_text,'Warning');
+end
+
 % Choose default command line output for ez_motion_correction
 handles.output = hObject;
 

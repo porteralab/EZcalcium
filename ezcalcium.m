@@ -63,6 +63,24 @@ guidata(hObject, handles);
 % UIWAIT makes guidetemplate0 wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
 
+warning_text = '';
+if ~license('test','image_toolbox')
+    warning_text = [warning_text newline '    Image Processing Toolbox'];
+end
+if ~license('test','distrib_computing_toolbox')
+    warning_text = [warning_text newline '    Parallel Computing Toolbox'];
+end
+if ~license('test','signal_toolbox')
+    warning_text = [warning_text newline '    Signal Processing Toolbox'];
+end
+if ~license('test','statistics_toolbox')
+    warning_text = [warning_text newline '    Statistics and Machine Learning Toolbox'];
+end
+if ~isempty(warning_text)
+    warning_text = ['It seems like you do not have the following MATLAB toolboxes installed: ' newline warning_text newline newline 'EZcalcium will not work without these toolboxes.'];
+    msgbox(warning_text,'Warning');
+end
+
 
 % --- Outputs from this function are returned to the command line.
 function varargout = guidetemplate0_OutputFcn(hObject, eventdata, handles) 
