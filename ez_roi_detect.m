@@ -452,8 +452,7 @@ function help_button_Callback(hObject, eventdata, handles)
 % hObject    handle to help_button (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-filepath = fileparts([mfilename('fullpath') '.m']);
-system([filepath '/HELP.pdf']); %Load documentation
+web('https://github.com/porteralab/EZcalcium/wiki/ROI-Detection') %Load documentation
 
 
 % --- Executes on button press in load_settings_button.

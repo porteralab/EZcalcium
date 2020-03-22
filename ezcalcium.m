@@ -80,8 +80,7 @@ function help_button_Callback(hObject, eventdata, handles)
 % hObject    handle to help_button (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-filepath = fileparts([mfilename('fullpath') '.m']);
-system([filepath '/HELP.pdf']); %Load documentation
+web('https://github.com/porteralab/EZcalcium/wiki') %Load documentation
 
 % --- Executes on button press in roi_refine.
 function roi_refine_Callback(hObject, eventdata, handles)
