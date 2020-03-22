@@ -61,6 +61,12 @@ if isfile(settings_file)
     end
 end
 
+if get(handles.non_rigid_checkbox,'Value')
+    set(handles.grid_size_popupmenu, 'Enable', 'on'); drawnow
+else
+    set(handles.grid_size_popupmenu, 'Enable', 'off'); drawnow
+end
+
 % Choose default command line output for ez_motion_correction
 handles.output = hObject;
 
@@ -400,6 +406,11 @@ function non_rigid_checkbox_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of non_rigid_checkbox
+if get(handles.non_rigid_checkbox,'Value')
+    set(handles.grid_size_popupmenu, 'Enable', 'on'); drawnow
+else
+    set(handles.grid_size_popupmenu, 'Enable', 'off'); drawnow
+end
 
 
 
@@ -578,7 +589,7 @@ function non_rigid_help_Callback(hObject, eventdata, handles)
 % hObject    handle to non_rigid_help (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-msgbox("Whether to use non-rigid motion correction or not. Non-rigid motion correction splits the field of view into a number of overlapping patches to correct for within-frame motion artifacts. While this can give more accurate results, it is considerably slower than rigid motion correction. The option ""Grid Size"" will be ignored if this is not selected.","Help",'replace')
+msgbox("Whether to use non-rigid motion correction or not. Non-rigid motion correction splits the field of view into a number of overlapping patches to correct for within-frame motion artifacts. While this can give more accurate results, it is considerably slower than rigid motion correction.","Help",'replace')
 
 
 % --- Executes on button press in grid_size_help.
@@ -586,7 +597,7 @@ function grid_size_help_Callback(hObject, eventdata, handles)
 % hObject    handle to grid_size_help (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-msgbox("""Grid Size"" defines the size of each patches in pixels when using non-rigid motion correction. It will have no effect if ""Non-rigid Motion Correction"" is not selected.","Help",'replace')
+msgbox("""Grid Size"" defines the size of each patches in pixels when using non-rigid motion correction. This option is not available if ""Non-rigid Motion Correction"" is not selected.","Help",'replace')
 
 
 % --- Executes on button press in us_fac_help.
@@ -602,7 +613,7 @@ function max_shift_help_Callback(hObject, eventdata, handles)
 % hObject    handle to max_shift_help (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-msgbox("""Max Shift"" defines the maximum rigid shift in pixels allowed in each direction.","Help",'replace')
+msgbox("""Max Shift"" defines the maximum shift in pixels allowed in each direction.","Help",'replace')
 
 
 % --- Executes on button press in initial_batch_size_help.
