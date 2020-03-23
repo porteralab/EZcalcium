@@ -251,7 +251,13 @@ file_string = cellstr(list_cell{list_position});
 file_string = file_string{1};
 
 %Open file in the default program
-system(file_string);
+if ispc
+    winopen(file_string);
+elseif ismac
+    system(['open ' file_string ' &']);
+elseif isunix
+    system(['xdg-open ' file_string ' &']);
+end
 
 
 % --- Executes on button press in clear_button.
