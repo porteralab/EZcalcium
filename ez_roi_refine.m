@@ -22,7 +22,7 @@ function varargout = ez_roi_refine(varargin)
 
 % Edit the above text to modify the response to help ez_roi_refine
 
-% Last Modified by GUIDE v2.5 12-Nov-2019 16:38:04
+% Last Modified by GUIDE v2.5 25-Mar-2020 15:40:36
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -473,375 +473,377 @@ function view_ROI_function(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-ROI_number=get(handles.ROI_list,'Value'); %Get the number of the selected ROI
-
-%Display Isolated ROI
-axes(handles.isolated_ROI); %Select whole field axes
-
-%Display raw dF/F trace (if exists)
-axes(handles.ROI_dF_trace);
-% plot(handles.ROI.F_raw(ROI_number,:))
-plot(handles.ROI.Z_mod(ROI_number,:))
-set(gca,'xtick',[])
-set(gca,'xticklabel',[])
-set(gca,'ytick',[])
-set(gca,'yticklabel',[])
-set(gca,'box','off')
-
-hold on %Add active trace threshold
-if get(handles.input_dF_activity_style,'Value')==1
-    threshold_line=zeros(1,size(handles.ROI.Z_mod,2))+str2num(get(handles.input_dF_activity_value,'String'));
-    plot(threshold_line);
-end
-
-hold off
-
-%Display fitted trace (if exists)
-axes(handles.ROI_fitted_trace);
-plot(handles.ROI.F_inferred(ROI_number,:))
-set(gca,'xtick',[])
-set(gca,'xticklabel',[])
-set(gca,'ytick',[])
-set(gca,'yticklabel',[])
-set(gca,'box','off')
-
-%Display deconvolved trace (if exists)
-axes(handles.ROI_deconvolved_trace);
-plot(handles.ROI.S_deconv(ROI_number,:))
-set(gca,'xtick',[])
-set(gca,'xticklabel',[])
-set(gca,'ytick',[])
-set(gca,'yticklabel',[])
-set(gca,'box','off')
-
-%Display Big Map
-map_size = size(handles.ROI.Cn);
-axes(handles.whole_field)
-imagesc(handles.ROI.Cn);hold on
-single_ROI = full(reshape(handles.ROI.A_or(:,ROI_number),map_size(1),map_size(2)));
-single_ROI = medfilt2(single_ROI,[3,3]);
-single_ROI = single_ROI(:);
-[temp,ind] = sort(single_ROI(:).^2,'ascend');
-temp =  cumsum(temp);
-ff = find(temp > (1-0.95)*temp(end),1,'first');
-if ~isempty(ff)
-    [~,ww] = contour(reshape(single_ROI,map_size(1),map_size(2)),[0,0]+single_ROI(ind(ff)),'LineColor','k');
-    ww.LineWidth = 2;
-end
-set(gca,'xtick',[])
-set(gca,'xticklabel',[])
-set(gca,'ytick',[])
-set(gca,'yticklabel',[])
-set(gca,'box','off')
-hold off
-
-%Display Isolated ROI
-axes(handles.isolated_ROI);
-single_ROI=reshape(handles.ROI.A_or(:,ROI_number),map_size(1),map_size(2));
-i = ROI_number;
-int_x = handles.ROI.int_x;
-int_y = handles.ROI.int_y;
-sx = handles.ROI.sx;
-cm = handles.ROI.cm;
-d1 = map_size(1);
-d2 = map_size(2);
-
-int_x(i,:) = round(cm(i,1)) + (-(sx-1):sx);
-if int_x(i,1)<1
-    int_x(i,:) = int_x(i,:) + 1 - int_x(i,1);
-end
-if int_x(i,end)>d1
-    int_x(i,:) = int_x(i,:) - (int_x(i,end)-d1);
-end
-int_y(i,:) = round(cm(i,2)) + (-(sx-1):sx);
-if int_y(i,1)<1
-    int_y(i,:) = int_y(i,:) + 1 - int_y(i,1);
-end
-if int_y(i,end)>d2
-    int_y(i,:) = int_y(i,:) - (int_y(i,end)-d2);
-end
-single_ROI = single_ROI(int_x(i,:),int_y(i,:));
-imagesc(int_x(i,:),int_y(i,:),single_ROI);
-
-set(gca,'xtick',[])
-set(gca,'xticklabel',[])
-set(gca,'ytick',[])
-set(gca,'yticklabel',[])
-set(gca,'box','off')
-
-%Read if included or excluded, update exclusion list
-ROI_name=get(handles.ROI_list,'String'); %ADD 3 SPACES TO END OF STRING
-% XXXXXXXXXXXXXXXXXX RESUME HERE =================
-
-
-if contains(ROI_name(ROI_number,1),'X') %Checks if marked excluded
-    set(handles.exclusion_status,'String',['ROI ' num2str(ROI_number) ' - Excluded'])
-    set(handles.exclusion_status,'ForegroundColor','white')
-    set(handles.exclusion_status,'BackgroundColor',[0.6350, 0.0780, 0.1840])
-elseif contains(ROI_name(ROI_number,1),'B')  %Checks if marked borderline
-    set(handles.exclusion_status,'String',['ROI ' num2str(ROI_number) ' - Borderline'])
-    set(handles.exclusion_status,'ForegroundColor','black')
-    set(handles.exclusion_status,'BackgroundColor','yellow')
-else
-    set(handles.exclusion_status,'String',['ROI ' num2str(ROI_number) ' - Included'])
-    set(handles.exclusion_status,'ForegroundColor','black')
-    set(handles.exclusion_status,'BackgroundColor','white')
-end
-%Coloring scheme isn't working for some reason. Fix this bug later
-
-
-%Display values of ROIs
-set(handles.ROI_baseline_stability,'String',num2str(round(handles.ROI.Baseline_stability(ROI_number),3)));
-set(handles.ROI_roundness,'String',num2str(round(handles.ROI.Roundness(ROI_number),3)));
-set(handles.ROI_oblongness,'String',num2str(round(handles.ROI.Oblong(ROI_number),3)));
-set(handles.ROI_width,'String',num2str(round(handles.ROI.Width(ROI_number),3)));
-set(handles.ROI_area,'String',num2str(round(handles.ROI.Area(ROI_number),3)));
-set(handles.ROI_skewness_dF,'String',num2str(round(handles.ROI.Skewness_raw(ROI_number),3)));
-set(handles.ROI_skewness_deconvolved,'String',num2str(round(handles.ROI.Skewness_deconv(ROI_number),3)));
-set(handles.ROI_kurtosis_dF,'String',num2str(round(handles.ROI.Kurtosis_raw(ROI_number),3)));
-set(handles.ROI_kurtosis_deconvolved,'String',num2str(round(handles.ROI.Kurtosis_deconv(ROI_number),3)));
-set(handles.ROI_saturated_frames,'String',num2str(round(handles.ROI.Saturated_frames(ROI_number),3)));
-
-
-%=========Display exclusion status==============
-
-%Grab all exclusion values
-input_activity_style=(get(handles.input_dF_activity_style,'Value'));
-input_activity_value=str2double(get(handles.input_dF_activity_value,'String'));
-input_activity_frames=str2double(get(handles.input_dF_activity_frames,'String'));
-input_baseline_stability=str2double(get(handles.input_baseline_stability,'String'));
-input_baseline_stability_percent=str2double(get(handles.input_baseline_stability_percent,'String'));
-input_baseline_window=str2double(get(handles.input_baseline_window,'String'));
-input_roundness=str2double(get(handles.input_roundness,'String'));
-input_oblongness=str2double(get(handles.input_oblongness,'String'));
-input_area_min=str2double(get(handles.input_area_min,'String'));
-input_area_max=str2double(get(handles.input_area_max,'String'));
-input_width_min=str2double(get(handles.input_width_min,'String'));
-input_width_max=str2double(get(handles.input_width_max,'String'));
-input_skewness_min=str2double(get(handles.input_skewness_min,'String'));
-input_skewness_max=str2double(get(handles.input_skewness_max,'String'));
-input_skewness_kurtosis_style=get(handles.input_skewness_kurtosis_style,'Value');
-input_kurtosis_min=str2double(get(handles.input_kurtosis_min,'String'));
-input_kurtosis_max=str2double(get(handles.input_kurtosis_max,'String'));
-
-%Convert sat value to frames if not frames already
-input_sat_style=get(handles.input_sat_value,'Value'); % 1 = percent, 2 = frames
-
-if input_sat_style==2
-    input_sat_value=str2double(get(handles.input_sat_value,'String'));
-else
-    input_sat_value=floor(str2double(get(handles.input_sat_value,'String'))/100*size(handles.ROI.C_or,2)); %Convert to number of frames
-end
-
-
-%Calculate Borderline Values
-borderline_style=get(handles.input_borderline_style,'Value'); %1 = percentage, 2 = stdev, 3 = MAD
-
-if borderline_style==1 %percentage
-    border_percent=str2double(get(handles.input_borderline_value,'String'))/100;
+if isfield(handles,'ROI')
+    ROI_number=get(handles.ROI_list,'Value'); %Get the number of the selected ROI
     
-    border_activity_value=input_activity_value*(1-border_percent); %Treat as a minimum
-    border_baseline_stability=input_baseline_stability*(1+border_percent); %Treat as a maximum
-    border_roundness=input_roundness*(1-border_percent); %Treat as a minimum
-    border_oblongness=input_oblongness*(1+border_percent); %Treated as a maximum
-    border_area_min=input_area_min*(1-border_percent);
-    border_area_max=input_area_max*(1+border_percent);
-    border_width_min=input_width_min*(1-border_percent);
-    border_width_max=input_width_max*(1+border_percent);
-    border_skewness_min=input_skewness_min*(1-border_percent);
-    border_skewness_max=input_skewness_max*(1+border_percent);
-    border_kurtosis_min=input_kurtosis_min*(1-border_percent);
-    border_kurtosis_max=input_kurtosis_max*(1+border_percent);
-    border_sat_value=input_sat_value*(1+border_percent);
+    %Display Isolated ROI
+    axes(handles.isolated_ROI); %Select whole field axes
     
-elseif borderline_style==2 %stdev
-    border_std=str2double(get(handles.input_borderline_value,'String'));
+    %Display raw dF/F trace (if exists)
+    axes(handles.ROI_dF_trace);
+    % plot(handles.ROI.F_raw(ROI_number,:))
+    plot(handles.ROI.Z_mod(ROI_number,:))
+    set(gca,'xtick',[])
+    set(gca,'xticklabel',[])
+    set(gca,'ytick',[])
+    set(gca,'yticklabel',[])
+    set(gca,'box','off')
     
-    border_activity_value=input_activity_value; %MAD and STD can't be applied here
-    border_baseline_stability=input_baseline_stability; %MAD and STD can't be applied here
-    border_roundness=mean(handles.ROI.Roundness)-border_std*std(handles.ROI.Roundness); %Treat as a minimum
-    border_oblongness=mean(handles.ROI.Oblong)+border_std*std(handles.ROI.Oblong);  %Treated as a maximum
-    border_area_min=mean(handles.ROI.Area)-border_std*std(handles.ROI.Area);
-    border_area_max=mean(handles.ROI.Area)+border_std*std(handles.ROI.Area);
-    border_width_min=mean(handles.ROI.Width)-border_std*std(handles.ROI.Width);
-    border_width_max=mean(handles.ROI.Width)+border_std*std(handles.ROI.Width);
-    border_sat_value=mean(handles.ROI.Saturated_frames)-border_std*std(handles.ROI.Saturated_frames);
+    hold on %Add active trace threshold
+    if get(handles.input_dF_activity_style,'Value')==1
+        threshold_line=zeros(1,size(handles.ROI.Z_mod,2))+str2num(get(handles.input_dF_activity_value,'String'));
+        plot(threshold_line);
+    end
+    
+    hold off
+    
+    %Display fitted trace (if exists)
+    axes(handles.ROI_fitted_trace);
+    plot(handles.ROI.F_inferred(ROI_number,:))
+    set(gca,'xtick',[])
+    set(gca,'xticklabel',[])
+    set(gca,'ytick',[])
+    set(gca,'yticklabel',[])
+    set(gca,'box','off')
+    
+    %Display deconvolved trace (if exists)
+    axes(handles.ROI_deconvolved_trace);
+    plot(handles.ROI.S_deconv(ROI_number,:))
+    set(gca,'xtick',[])
+    set(gca,'xticklabel',[])
+    set(gca,'ytick',[])
+    set(gca,'yticklabel',[])
+    set(gca,'box','off')
+    
+    %Display Big Map
+    map_size = size(handles.ROI.Cn);
+    axes(handles.whole_field)
+    imagesc(handles.ROI.Cn);hold on
+    single_ROI = full(reshape(handles.ROI.A_or(:,ROI_number),map_size(1),map_size(2)));
+    single_ROI = medfilt2(single_ROI,[3,3]);
+    single_ROI = single_ROI(:);
+    [temp,ind] = sort(single_ROI(:).^2,'ascend');
+    temp =  cumsum(temp);
+    ff = find(temp > (1-0.95)*temp(end),1,'first');
+    if ~isempty(ff)
+        [~,ww] = contour(reshape(single_ROI,map_size(1),map_size(2)),[0,0]+single_ROI(ind(ff)),'LineColor','k');
+        ww.LineWidth = 2;
+    end
+    set(gca,'xtick',[])
+    set(gca,'xticklabel',[])
+    set(gca,'ytick',[])
+    set(gca,'yticklabel',[])
+    set(gca,'box','off')
+    hold off
+    
+    %Display Isolated ROI
+    axes(handles.isolated_ROI);
+    single_ROI=reshape(handles.ROI.A_or(:,ROI_number),map_size(1),map_size(2));
+    i = ROI_number;
+    int_x = handles.ROI.int_x;
+    int_y = handles.ROI.int_y;
+    sx = handles.ROI.sx;
+    cm = handles.ROI.cm;
+    d1 = map_size(1);
+    d2 = map_size(2);
+    
+    int_x(i,:) = round(cm(i,1)) + (-(sx-1):sx);
+    if int_x(i,1)<1
+        int_x(i,:) = int_x(i,:) + 1 - int_x(i,1);
+    end
+    if int_x(i,end)>d1
+        int_x(i,:) = int_x(i,:) - (int_x(i,end)-d1);
+    end
+    int_y(i,:) = round(cm(i,2)) + (-(sx-1):sx);
+    if int_y(i,1)<1
+        int_y(i,:) = int_y(i,:) + 1 - int_y(i,1);
+    end
+    if int_y(i,end)>d2
+        int_y(i,:) = int_y(i,:) - (int_y(i,end)-d2);
+    end
+    single_ROI = single_ROI(int_x(i,:),int_y(i,:));
+    imagesc(int_x(i,:),int_y(i,:),single_ROI);
+    
+    set(gca,'xtick',[])
+    set(gca,'xticklabel',[])
+    set(gca,'ytick',[])
+    set(gca,'yticklabel',[])
+    set(gca,'box','off')
+    
+    %Read if included or excluded, update exclusion list
+    ROI_name=get(handles.ROI_list,'String'); %ADD 3 SPACES TO END OF STRING
+    % XXXXXXXXXXXXXXXXXX RESUME HERE =================
+    
+    
+    if contains(ROI_name(ROI_number,1),'X') %Checks if marked excluded
+        set(handles.exclusion_status,'String',['ROI ' num2str(ROI_number) ' - Excluded'])
+        set(handles.exclusion_status,'ForegroundColor','white')
+        set(handles.exclusion_status,'BackgroundColor',[0.6350, 0.0780, 0.1840])
+    elseif contains(ROI_name(ROI_number,1),'B')  %Checks if marked borderline
+        set(handles.exclusion_status,'String',['ROI ' num2str(ROI_number) ' - Borderline'])
+        set(handles.exclusion_status,'ForegroundColor','black')
+        set(handles.exclusion_status,'BackgroundColor','yellow')
+    else
+        set(handles.exclusion_status,'String',['ROI ' num2str(ROI_number) ' - Included'])
+        set(handles.exclusion_status,'ForegroundColor','black')
+        set(handles.exclusion_status,'BackgroundColor','white')
+    end
+    %Coloring scheme isn't working for some reason. Fix this bug later
+    
+    
+    %Display values of ROIs
+    set(handles.ROI_baseline_stability,'String',num2str(round(handles.ROI.Baseline_stability(ROI_number),3)));
+    set(handles.ROI_roundness,'String',num2str(round(handles.ROI.Roundness(ROI_number),3)));
+    set(handles.ROI_oblongness,'String',num2str(round(handles.ROI.Oblong(ROI_number),3)));
+    set(handles.ROI_width,'String',num2str(round(handles.ROI.Width(ROI_number),3)));
+    set(handles.ROI_area,'String',num2str(round(handles.ROI.Area(ROI_number),3)));
+    set(handles.ROI_skewness_dF,'String',num2str(round(handles.ROI.Skewness_raw(ROI_number),3)));
+    set(handles.ROI_skewness_deconvolved,'String',num2str(round(handles.ROI.Skewness_deconv(ROI_number),3)));
+    set(handles.ROI_kurtosis_dF,'String',num2str(round(handles.ROI.Kurtosis_raw(ROI_number),3)));
+    set(handles.ROI_kurtosis_deconvolved,'String',num2str(round(handles.ROI.Kurtosis_deconv(ROI_number),3)));
+    set(handles.ROI_saturated_frames,'String',num2str(round(handles.ROI.Saturated_frames(ROI_number),3)));
+    
+    
+    %=========Display exclusion status==============
+    
+    %Grab all exclusion values
+    input_activity_style=(get(handles.input_dF_activity_style,'Value'));
+    input_activity_value=str2double(get(handles.input_dF_activity_value,'String'));
+    input_activity_frames=str2double(get(handles.input_dF_activity_frames,'String'));
+    input_baseline_stability=str2double(get(handles.input_baseline_stability,'String'));
+    input_baseline_stability_percent=str2double(get(handles.input_baseline_stability_percent,'String'));
+    input_baseline_window=str2double(get(handles.input_baseline_window,'String'));
+    input_roundness=str2double(get(handles.input_roundness,'String'));
+    input_oblongness=str2double(get(handles.input_oblongness,'String'));
+    input_area_min=str2double(get(handles.input_area_min,'String'));
+    input_area_max=str2double(get(handles.input_area_max,'String'));
+    input_width_min=str2double(get(handles.input_width_min,'String'));
+    input_width_max=str2double(get(handles.input_width_max,'String'));
+    input_skewness_min=str2double(get(handles.input_skewness_min,'String'));
+    input_skewness_max=str2double(get(handles.input_skewness_max,'String'));
+    input_skewness_kurtosis_style=get(handles.input_skewness_kurtosis_style,'Value');
+    input_kurtosis_min=str2double(get(handles.input_kurtosis_min,'String'));
+    input_kurtosis_max=str2double(get(handles.input_kurtosis_max,'String'));
+    
+    %Convert sat value to frames if not frames already
+    input_sat_style=get(handles.input_sat_value,'Value'); % 1 = percent, 2 = frames
+    
+    if input_sat_style==2
+        input_sat_value=str2double(get(handles.input_sat_value,'String'));
+    else
+        input_sat_value=floor(str2double(get(handles.input_sat_value,'String'))/100*size(handles.ROI.C_or,2)); %Convert to number of frames
+    end
+    
+    
+    %Calculate Borderline Values
+    borderline_style=get(handles.input_borderline_style,'Value'); %1 = percentage, 2 = stdev, 3 = MAD
+    
+    if borderline_style==1 %percentage
+        border_percent=str2double(get(handles.input_borderline_value,'String'))/100;
+        
+        border_activity_value=input_activity_value*(1-border_percent); %Treat as a minimum
+        border_baseline_stability=input_baseline_stability*(1+border_percent); %Treat as a maximum
+        border_roundness=input_roundness*(1-border_percent); %Treat as a minimum
+        border_oblongness=input_oblongness*(1+border_percent); %Treated as a maximum
+        border_area_min=input_area_min*(1-border_percent);
+        border_area_max=input_area_max*(1+border_percent);
+        border_width_min=input_width_min*(1-border_percent);
+        border_width_max=input_width_max*(1+border_percent);
+        border_skewness_min=input_skewness_min*(1-border_percent);
+        border_skewness_max=input_skewness_max*(1+border_percent);
+        border_kurtosis_min=input_kurtosis_min*(1-border_percent);
+        border_kurtosis_max=input_kurtosis_max*(1+border_percent);
+        border_sat_value=input_sat_value*(1+border_percent);
+        
+    elseif borderline_style==2 %stdev
+        border_std=str2double(get(handles.input_borderline_value,'String'));
+        
+        border_activity_value=input_activity_value; %MAD and STD can't be applied here
+        border_baseline_stability=input_baseline_stability; %MAD and STD can't be applied here
+        border_roundness=mean(handles.ROI.Roundness)-border_std*std(handles.ROI.Roundness); %Treat as a minimum
+        border_oblongness=mean(handles.ROI.Oblong)+border_std*std(handles.ROI.Oblong);  %Treated as a maximum
+        border_area_min=mean(handles.ROI.Area)-border_std*std(handles.ROI.Area);
+        border_area_max=mean(handles.ROI.Area)+border_std*std(handles.ROI.Area);
+        border_width_min=mean(handles.ROI.Width)-border_std*std(handles.ROI.Width);
+        border_width_max=mean(handles.ROI.Width)+border_std*std(handles.ROI.Width);
+        border_sat_value=mean(handles.ROI.Saturated_frames)-border_std*std(handles.ROI.Saturated_frames);
+        
+        if input_skewness_kurtosis_style==1 %Deconvolved
+            border_skewness_min=mean(handles.ROI.Skewness_deconv)-border_std*std(handles.ROI.Skewness_deconv);
+            border_skewness_max=mean(handles.ROI.Skewness_deconv)+border_std*std(handles.ROI.Skewness_deconv);
+            border_kurtosis_min=mean(handles.ROI.Kurtosis_deconv)-border_std*std(handles.ROI.Kurtosis_deconv);
+            border_kurtosis_max=mean(handles.ROI.Kurtosis_deconv)+border_std*std(handles.ROI.Kurtosis_deconv);
+        else %Raw
+            border_skewness_min=mean(handles.ROI.Skewness_raw)-border_std*std(handles.ROI.Skewness_raw);
+            border_skewness_max=mean(handles.ROI.Skewness_raw)+border_std*std(handles.ROI.Skewness_raw);
+            border_kurtosis_min=mean(handles.ROI.Kurtosis_raw)-border_std*std(handles.ROI.Kurtosis_raw);
+            border_kurtosis_max=mean(handles.ROI.Kurtosis_raw)+border_std*std(handles.ROI.Kurtosis_raw);
+        end
+        
+    elseif borderline_style==3 %MAD
+        border_mad=str2double(get(handles.input_borderline_value,'String'));
+        
+        border_activity_value=input_activity_value; %MAD and STD can't be applied here
+        border_baseline_stability=input_baseline_stability; %MAD and STD can't be applied here
+        border_roundness=mean(handles.ROI.Roundness)-border_mad*mad(handles.ROI.Roundness,1); %Treat as a minimum
+        border_oblongness=mean(handles.ROI.Oblong)+border_mad*mad(handles.ROI.Oblong,1);  %Treated as a maximum
+        border_area_min=mean(handles.ROI.Area)-border_mad*mad(handles.ROI.Area,1);
+        border_area_max=mean(handles.ROI.Area)+border_mad*mad(handles.ROI.Area,1);
+        border_width_min=mean(handles.ROI.Width)-border_mad*mad(handles.ROI.Width,1);
+        border_width_max=mean(handles.ROI.Width)+border_mad*mad(handles.ROI.Width,1);
+        border_sat_value=mean(handles.ROI.Saturated_frames)-border_mad*mad(handles.ROI.Saturated_frames,1);
+        
+        if input_skewness_kurtosis_style==1 %Deconvolved
+            border_skewness_min=mean(handles.ROI.Skewness_deconv)-border_mad*mad(handles.ROI.Skewness_deconv,1);
+            border_skewness_max=mean(handles.ROI.Skewness_deconv)+border_mad*mad(handles.ROI.Skewness_deconv,1);
+            border_kurtosis_min=mean(handles.ROI.Kurtosis_deconv)-border_mad*mad(handles.ROI.Kurtosis_deconv,1);
+            border_kurtosis_max=mean(handles.ROI.Kurtosis_deconv)+border_mad*mad(handles.ROI.Kurtosis_deconv,1);
+        else %Raw
+            border_skewness_min=mean(handles.ROI.Skewness_raw)-border_mad*mad(handles.ROI.Skewness_raw,1);
+            border_skewness_max=mean(handles.ROI.Skewness_raw)+border_mad*mad(handles.ROI.Skewness_raw,1);
+            border_kurtosis_min=mean(handles.ROI.Kurtosis_raw)-border_mad*mad(handles.ROI.Kurtosis_raw,1);
+            border_kurtosis_max=mean(handles.ROI.Kurtosis_raw)+border_mad*mad(handles.ROI.Kurtosis_raw,1);
+        end
+        
+    end
+    
+    %Mark if things are exclusionary
+    
+    if handles.ROI.Baseline_stability(ROI_number)<=input_baseline_stability
+        set(handles.ROI_baseline_stability,'BackgroundColor','white');
+        set(handles.ROI_baseline_stability,'ForegroundColor','black');
+    elseif handles.ROI.Baseline_stability(ROI_number)<=border_baseline_stability
+        set(handles.ROI_baseline_stability,'BackgroundColor','yellow');
+        set(handles.ROI_baseline_stability,'ForegroundColor','black');
+    else
+        set(handles.ROI_baseline_stability,'BackgroundColor',[0.6350, 0.0780, 0.1840]);
+        set(handles.ROI_baseline_stability,'ForegroundColor','white');
+    end
+    
+    if handles.ROI.Roundness(ROI_number)<=input_roundness
+        set(handles.ROI_roundness,'BackgroundColor','white');
+        set(handles.ROI_roundness,'ForegroundColor','black');
+    elseif handles.ROI.Roundness(ROI_number)<=border_roundness
+        set(handles.ROI_roundness,'BackgroundColor','yellow');
+        set(handles.ROI_roundness,'ForegroundColor','black');
+    else
+        set(handles.ROI_roundness,'BackgroundColor',[0.6350, 0.0780, 0.1840]);
+        set(handles.ROI_roundness,'ForegroundColor','white');
+    end
+    
+    if handles.ROI.Oblong(ROI_number)<=input_oblongness
+        set(handles.ROI_oblongness,'BackgroundColor','white');
+        set(handles.ROI_oblongness,'ForegroundColor','black');
+    elseif handles.ROI.Oblong(ROI_number)<=border_oblongness
+        set(handles.ROI_oblongness,'BackgroundColor','yellow');
+        set(handles.ROI_oblongness,'ForegroundColor','black');
+    else
+        set(handles.ROI_oblongness,'BackgroundColor',[0.6350, 0.0780, 0.1840]);
+        set(handles.ROI_oblongness,'ForegroundColor','white');
+    end
+    
+    if handles.ROI.Saturated_frames(ROI_number)<=input_sat_value
+        set(handles.ROI_saturated_frames,'BackgroundColor','white');
+        set(handles.ROI_saturated_frames,'ForegroundColor','black');
+    elseif handles.ROI.Saturated_frames(ROI_number)<=border_sat_value
+        set(handles.ROI_saturated_frames,'BackgroundColor','yellow');
+        set(handles.ROI_saturated_frames,'ForegroundColor','black');
+    else
+        set(handles.ROI_saturated_frames,'BackgroundColor',[0.6350, 0.0780, 0.1840]);
+        set(handles.ROI_saturated_frames,'ForegroundColor','white');
+    end
+    
+    if handles.ROI.Width(ROI_number)>=input_width_min && handles.ROI.Width(ROI_number)<=input_width_max
+        set(handles.ROI_width,'BackgroundColor','white');
+        set(handles.ROI_width,'ForegroundColor','black');
+    elseif handles.ROI.Width(ROI_number)>=border_width_min && handles.ROI.Width(ROI_number)<=border_width_max
+        set(handles.ROI_width,'BackgroundColor','yellow');
+        set(handles.ROI_width,'ForegroundColor','black');
+    else
+        set(handles.ROI_width,'BackgroundColor',[0.6350, 0.0780, 0.1840]);
+        set(handles.ROI_width,'ForegroundColor','white');
+    end
+    
+    if handles.ROI.Area(ROI_number)>=input_area_min && handles.ROI.Area(ROI_number)<=input_area_max
+        set(handles.ROI_area,'BackgroundColor','white');
+        set(handles.ROI_area,'ForegroundColor','black');
+    elseif handles.ROI.Area(ROI_number)>=border_area_min && handles.ROI.Area(ROI_number)<=border_area_max
+        set(handles.ROI_area,'BackgroundColor','yellow');
+        set(handles.ROI_area,'ForegroundColor','black');
+    else
+        set(handles.ROI_area,'BackgroundColor',[0.6350, 0.0780, 0.1840]);
+        set(handles.ROI_area,'ForegroundColor','white');
+    end
     
     if input_skewness_kurtosis_style==1 %Deconvolved
-        border_skewness_min=mean(handles.ROI.Skewness_deconv)-border_std*std(handles.ROI.Skewness_deconv);
-        border_skewness_max=mean(handles.ROI.Skewness_deconv)+border_std*std(handles.ROI.Skewness_deconv);
-        border_kurtosis_min=mean(handles.ROI.Kurtosis_deconv)-border_std*std(handles.ROI.Kurtosis_deconv);
-        border_kurtosis_max=mean(handles.ROI.Kurtosis_deconv)+border_std*std(handles.ROI.Kurtosis_deconv);
-    else %Raw
-        border_skewness_min=mean(handles.ROI.Skewness_raw)-border_std*std(handles.ROI.Skewness_raw);
-        border_skewness_max=mean(handles.ROI.Skewness_raw)+border_std*std(handles.ROI.Skewness_raw);
-        border_kurtosis_min=mean(handles.ROI.Kurtosis_raw)-border_std*std(handles.ROI.Kurtosis_raw);
-        border_kurtosis_max=mean(handles.ROI.Kurtosis_raw)+border_std*std(handles.ROI.Kurtosis_raw);
-    end
-    
-elseif borderline_style==3 %MAD
-    border_mad=str2double(get(handles.input_borderline_value,'String'));
-    
-    border_activity_value=input_activity_value; %MAD and STD can't be applied here
-    border_baseline_stability=input_baseline_stability; %MAD and STD can't be applied here
-    border_roundness=mean(handles.ROI.Roundness)-border_mad*mad(handles.ROI.Roundness,1); %Treat as a minimum
-    border_oblongness=mean(handles.ROI.Oblong)+border_mad*mad(handles.ROI.Oblong,1);  %Treated as a maximum
-    border_area_min=mean(handles.ROI.Area)-border_mad*mad(handles.ROI.Area,1);
-    border_area_max=mean(handles.ROI.Area)+border_mad*mad(handles.ROI.Area,1);
-    border_width_min=mean(handles.ROI.Width)-border_mad*mad(handles.ROI.Width,1);
-    border_width_max=mean(handles.ROI.Width)+border_mad*mad(handles.ROI.Width,1);
-    border_sat_value=mean(handles.ROI.Saturated_frames)-border_mad*mad(handles.ROI.Saturated_frames,1);
-    
-    if input_skewness_kurtosis_style==1 %Deconvolved
-        border_skewness_min=mean(handles.ROI.Skewness_deconv)-border_mad*mad(handles.ROI.Skewness_deconv,1);
-        border_skewness_max=mean(handles.ROI.Skewness_deconv)+border_mad*mad(handles.ROI.Skewness_deconv,1);
-        border_kurtosis_min=mean(handles.ROI.Kurtosis_deconv)-border_mad*mad(handles.ROI.Kurtosis_deconv,1);
-        border_kurtosis_max=mean(handles.ROI.Kurtosis_deconv)+border_mad*mad(handles.ROI.Kurtosis_deconv,1);
-    else %Raw
-        border_skewness_min=mean(handles.ROI.Skewness_raw)-border_mad*mad(handles.ROI.Skewness_raw,1);
-        border_skewness_max=mean(handles.ROI.Skewness_raw)+border_mad*mad(handles.ROI.Skewness_raw,1);
-        border_kurtosis_min=mean(handles.ROI.Kurtosis_raw)-border_mad*mad(handles.ROI.Kurtosis_raw,1);
-        border_kurtosis_max=mean(handles.ROI.Kurtosis_raw)+border_mad*mad(handles.ROI.Kurtosis_raw,1);
-    end
-    
-end
-
-%Mark if things are exclusionary
-
-if handles.ROI.Baseline_stability(ROI_number)<=input_baseline_stability
-    set(handles.ROI_baseline_stability,'BackgroundColor','white');
-    set(handles.ROI_baseline_stability,'ForegroundColor','black');
-elseif handles.ROI.Baseline_stability(ROI_number)<=border_baseline_stability
-    set(handles.ROI_baseline_stability,'BackgroundColor','yellow');
-    set(handles.ROI_baseline_stability,'ForegroundColor','black');
-else
-    set(handles.ROI_baseline_stability,'BackgroundColor',[0.6350, 0.0780, 0.1840]);
-    set(handles.ROI_baseline_stability,'ForegroundColor','white');
-end
-
-if handles.ROI.Roundness(ROI_number)<=input_roundness
-    set(handles.ROI_roundness,'BackgroundColor','white');
-    set(handles.ROI_roundness,'ForegroundColor','black');
-elseif handles.ROI.Roundness(ROI_number)<=border_roundness
-    set(handles.ROI_roundness,'BackgroundColor','yellow');
-    set(handles.ROI_roundness,'ForegroundColor','black');
-else
-    set(handles.ROI_roundness,'BackgroundColor',[0.6350, 0.0780, 0.1840]);
-    set(handles.ROI_roundness,'ForegroundColor','white');
-end
-
-if handles.ROI.Oblong(ROI_number)<=input_oblongness
-    set(handles.ROI_oblongness,'BackgroundColor','white');
-    set(handles.ROI_oblongness,'ForegroundColor','black');
-elseif handles.ROI.Oblong(ROI_number)<=border_oblongness
-    set(handles.ROI_oblongness,'BackgroundColor','yellow');
-    set(handles.ROI_oblongness,'ForegroundColor','black');
-else
-    set(handles.ROI_oblongness,'BackgroundColor',[0.6350, 0.0780, 0.1840]);
-    set(handles.ROI_oblongness,'ForegroundColor','white');
-end
-
-if handles.ROI.Saturated_frames(ROI_number)<=input_sat_value
-    set(handles.ROI_saturated_frames,'BackgroundColor','white');
-    set(handles.ROI_saturated_frames,'ForegroundColor','black');
-elseif handles.ROI.Saturated_frames(ROI_number)<=border_sat_value
-    set(handles.ROI_saturated_frames,'BackgroundColor','yellow');
-    set(handles.ROI_saturated_frames,'ForegroundColor','black');
-else
-    set(handles.ROI_saturated_frames,'BackgroundColor',[0.6350, 0.0780, 0.1840]);
-    set(handles.ROI_saturated_frames,'ForegroundColor','white');
-end
-
-if handles.ROI.Width(ROI_number)>=input_width_min && handles.ROI.Width(ROI_number)<=input_width_max
-    set(handles.ROI_width,'BackgroundColor','white');
-    set(handles.ROI_width,'ForegroundColor','black');
-elseif handles.ROI.Width(ROI_number)>=border_width_min && handles.ROI.Width(ROI_number)<=border_width_max
-    set(handles.ROI_width,'BackgroundColor','yellow');
-    set(handles.ROI_width,'ForegroundColor','black');
-else
-    set(handles.ROI_width,'BackgroundColor',[0.6350, 0.0780, 0.1840]);
-    set(handles.ROI_width,'ForegroundColor','white');
-end
-
-if handles.ROI.Area(ROI_number)>=input_area_min && handles.ROI.Area(ROI_number)<=input_area_max
-    set(handles.ROI_area,'BackgroundColor','white');
-    set(handles.ROI_area,'ForegroundColor','black');
-elseif handles.ROI.Area(ROI_number)>=border_area_min && handles.ROI.Area(ROI_number)<=border_area_max
-    set(handles.ROI_area,'BackgroundColor','yellow');
-    set(handles.ROI_area,'ForegroundColor','black');
-else
-    set(handles.ROI_area,'BackgroundColor',[0.6350, 0.0780, 0.1840]);
-    set(handles.ROI_area,'ForegroundColor','white');
-end
-
-if input_skewness_kurtosis_style==1 %Deconvolved
-    set(handles.ROI_skewness_dF,'BackgroundColor','white');
-    set(handles.ROI_skewness_dF,'ForegroundColor','black');
-    set(handles.ROI_kurtosis_dF,'BackgroundColor','white');
-    set(handles.ROI_kurtosis_dF,'ForegroundColor','black');
-    
-    if handles.ROI.Skewness_deconv(ROI_number)>=input_skewness_min && handles.ROI.Skewness_deconv(ROI_number)<=input_skewness_max
-        set(handles.ROI_skewness_deconvolved,'BackgroundColor','white');
-        set(handles.ROI_skewness_deconvolved,'ForegroundColor','black');
-    elseif handles.ROI.Skewness_deconv(ROI_number)>=border_skewness_min && handles.ROI.Skewness_deconv(ROI_number)<=border_skewness_max
-        set(handles.ROI_skewness_deconvolved,'BackgroundColor','yellow');
-        set(handles.ROI_skewness_deconvolved,'ForegroundColor','black');
-    else
-        set(handles.ROI_skewness_deconvolved,'BackgroundColor',[0.6350, 0.0780, 0.1840]);
-        set(handles.ROI_skewness_deconvolved,'ForegroundColor','white');
-    end
-    
-    if handles.ROI.Kurtosis_deconv(ROI_number)>=input_kurtosis_min && handles.ROI.Kurtosis_deconv(ROI_number)<=input_kurtosis_max
-        set(handles.ROI_kurtosis_deconvolved,'BackgroundColor','white');
-        set(handles.ROI_kurtosis_deconvolved,'ForegroundColor','black');
-    elseif handles.ROI.Kurtosis_deconv(ROI_number)>=border_kurtosis_min && handles.ROI.Kurtosis_deconv(ROI_number)<=border_kurtosis_max
-        set(handles.ROI_kurtosis_deconvolved,'BackgroundColor','yellow');
-        set(handles.ROI_kurtosis_deconvolved,'ForegroundColor','black');
-    else
-        set(handles.ROI_kurtosis_deconvolved,'BackgroundColor',[0.6350, 0.0780, 0.1840]);
-        set(handles.ROI_kurtosis_deconvolved,'ForegroundColor','white');
-    end
-    
-    
-else %Raw
-    set(handles.ROI_skewness_deconvolved,'BackgroundColor','white');
-    set(handles.ROI_skewness_deconvolved,'ForegroundColor','black');
-    set(handles.ROI_kurtosis_deconvolved,'BackgroundColor','white');
-    set(handles.ROI_kurtosis_deconvolved,'ForegroundColor','black');
-    
-    
-    if handles.ROI.Skewness_raw(ROI_number)>=input_skewness_min && handles.ROI.Skewness_raw(ROI_number)<=input_skewness_max
         set(handles.ROI_skewness_dF,'BackgroundColor','white');
         set(handles.ROI_skewness_dF,'ForegroundColor','black');
-    elseif handles.ROI.Skewness_raw(ROI_number)>=border_skewness_min && handles.ROI.Skewness_raw(ROI_number)<=border_skewness_max
-        set(handles.ROI_skewness_dF,'BackgroundColor','yellow');
-        set(handles.ROI_skewness_dF,'ForegroundColor','black');
-    else
-        set(handles.ROI_skewness_dF,'BackgroundColor',[0.6350, 0.0780, 0.1840]);
-        set(handles.ROI_skewness_dF,'ForegroundColor','white');
-    end
-    
-    if handles.ROI.Kurtosis_raw(ROI_number)>=input_kurtosis_min && handles.ROI.Kurtosis_raw(ROI_number)<=input_kurtosis_max
         set(handles.ROI_kurtosis_dF,'BackgroundColor','white');
         set(handles.ROI_kurtosis_dF,'ForegroundColor','black');
-    elseif handles.ROI.Kurtosis_raw(ROI_number)>=border_kurtosis_min && handles.ROI.Kurtosis_raw(ROI_number)<=border_kurtosis_max
-        set(handles.ROI_kurtosis_dF,'BackgroundColor','yellow');
-        set(handles.ROI_kurtosis_dF,'ForegroundColor','black');
-    else
-        set(handles.ROI_kurtosis_dF,'BackgroundColor',[0.6350, 0.0780, 0.1840]);
-        set(handles.ROI_kurtosis_dF,'ForegroundColor','white');
+        
+        if handles.ROI.Skewness_deconv(ROI_number)>=input_skewness_min && handles.ROI.Skewness_deconv(ROI_number)<=input_skewness_max
+            set(handles.ROI_skewness_deconvolved,'BackgroundColor','white');
+            set(handles.ROI_skewness_deconvolved,'ForegroundColor','black');
+        elseif handles.ROI.Skewness_deconv(ROI_number)>=border_skewness_min && handles.ROI.Skewness_deconv(ROI_number)<=border_skewness_max
+            set(handles.ROI_skewness_deconvolved,'BackgroundColor','yellow');
+            set(handles.ROI_skewness_deconvolved,'ForegroundColor','black');
+        else
+            set(handles.ROI_skewness_deconvolved,'BackgroundColor',[0.6350, 0.0780, 0.1840]);
+            set(handles.ROI_skewness_deconvolved,'ForegroundColor','white');
+        end
+        
+        if handles.ROI.Kurtosis_deconv(ROI_number)>=input_kurtosis_min && handles.ROI.Kurtosis_deconv(ROI_number)<=input_kurtosis_max
+            set(handles.ROI_kurtosis_deconvolved,'BackgroundColor','white');
+            set(handles.ROI_kurtosis_deconvolved,'ForegroundColor','black');
+        elseif handles.ROI.Kurtosis_deconv(ROI_number)>=border_kurtosis_min && handles.ROI.Kurtosis_deconv(ROI_number)<=border_kurtosis_max
+            set(handles.ROI_kurtosis_deconvolved,'BackgroundColor','yellow');
+            set(handles.ROI_kurtosis_deconvolved,'ForegroundColor','black');
+        else
+            set(handles.ROI_kurtosis_deconvolved,'BackgroundColor',[0.6350, 0.0780, 0.1840]);
+            set(handles.ROI_kurtosis_deconvolved,'ForegroundColor','white');
+        end
+        
+        
+    else %Raw
+        set(handles.ROI_skewness_deconvolved,'BackgroundColor','white');
+        set(handles.ROI_skewness_deconvolved,'ForegroundColor','black');
+        set(handles.ROI_kurtosis_deconvolved,'BackgroundColor','white');
+        set(handles.ROI_kurtosis_deconvolved,'ForegroundColor','black');
+        
+        
+        if handles.ROI.Skewness_raw(ROI_number)>=input_skewness_min && handles.ROI.Skewness_raw(ROI_number)<=input_skewness_max
+            set(handles.ROI_skewness_dF,'BackgroundColor','white');
+            set(handles.ROI_skewness_dF,'ForegroundColor','black');
+        elseif handles.ROI.Skewness_raw(ROI_number)>=border_skewness_min && handles.ROI.Skewness_raw(ROI_number)<=border_skewness_max
+            set(handles.ROI_skewness_dF,'BackgroundColor','yellow');
+            set(handles.ROI_skewness_dF,'ForegroundColor','black');
+        else
+            set(handles.ROI_skewness_dF,'BackgroundColor',[0.6350, 0.0780, 0.1840]);
+            set(handles.ROI_skewness_dF,'ForegroundColor','white');
+        end
+        
+        if handles.ROI.Kurtosis_raw(ROI_number)>=input_kurtosis_min && handles.ROI.Kurtosis_raw(ROI_number)<=input_kurtosis_max
+            set(handles.ROI_kurtosis_dF,'BackgroundColor','white');
+            set(handles.ROI_kurtosis_dF,'ForegroundColor','black');
+        elseif handles.ROI.Kurtosis_raw(ROI_number)>=border_kurtosis_min && handles.ROI.Kurtosis_raw(ROI_number)<=border_kurtosis_max
+            set(handles.ROI_kurtosis_dF,'BackgroundColor','yellow');
+            set(handles.ROI_kurtosis_dF,'ForegroundColor','black');
+        else
+            set(handles.ROI_kurtosis_dF,'BackgroundColor',[0.6350, 0.0780, 0.1840]);
+            set(handles.ROI_kurtosis_dF,'ForegroundColor','white');
+        end
+        
+        
+        
+        
     end
     
     
     
     
+    guidata(hObject,handles) %Update handles data
+    drawnow;
 end
-
-
-
-
-guidata(hObject,handles) %Update handles data
-drawnow;
 
 
 
@@ -2115,3 +2117,29 @@ catch
 end
 % Hint: delete(hObject) closes the figure
 delete(hObject);
+
+
+% --- Executes on key press with focus on figure1 or any of its controls.
+function figure1_WindowKeyPressFcn(hObject, eventdata, handles)
+% hObject    handle to figure1 (see GCBO)
+% eventdata  structure with the following fields (see MATLAB.UI.FIGURE)
+%	Key: name of the key that was pressed, in lower case
+%	Character: character interpretation of the key(s) that was pressed
+%	Modifier: name(s) of the modifier key(s) (i.e., control, shift) pressed
+% handles    structure with handles and user data (see GUIDATA)
+
+switch eventdata.Key
+    case 'e'
+        ROI_number = get(handles.ROI_list,'Value');
+        ROI_string = string(get(handles.ROI_list,'String'));
+        
+        if contains(ROI_string(ROI_number),'X')
+            include_ROI_Callback(hObject, eventdata, handles)
+        else
+            exclude_ROI_Callback(hObject, eventdata, handles)
+        end
+    case 'uparrow'
+        previous_ROI_Callback(hObject, eventdata, handles)
+    case 'downarrow'
+        next_ROI_Callback(hObject, eventdata, handles)
+end
