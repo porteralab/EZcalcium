@@ -853,11 +853,11 @@ function next_ROI_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 list_position=get(handles.ROI_list,'Value'); %Finds the position of the highlight
-list_length=length(get(handles.ROI_list,'String')); %Finds the length of the list
+list_length=size(get(handles.ROI_list,'String'),1); %Finds the length of the list
 if list_position == list_length %Checks to see if end of the list
-    new_position=1; %Start back at the start
+    new_position=list_length; % Keep at the end of the list
 else
-    new_position=list_position+1; %Move to the next position
+    new_position=list_position+1; % Move to the next position
 end
 set(handles.ROI_list,'Value',new_position); %Change position of highlight
 drawnow %update GUI
@@ -873,11 +873,11 @@ function previous_ROI_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 list_position=get(handles.ROI_list,'Value'); %Finds the position of the highlight
-list_length=length(get(handles.ROI_list,'String')); %Finds the length of the list
+list_length=size(get(handles.ROI_list,'String'),1); %Finds the length of the list
 if list_position == 1 %Checks to see if at the start of the list
-    new_position=list_length; %Move to the end of the list
+    new_position=1; % Keep at the start
 else
-    new_position=list_position-1; %Move to the previous position
+    new_position=list_position-1; % Move to the previous position
 end
 set(handles.ROI_list,'Value',new_position); %Change position of highlight
 drawnow %update GUI
