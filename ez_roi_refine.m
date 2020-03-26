@@ -350,6 +350,23 @@ if iscell(add_file)||ischar(add_file) %Checks to see if anything was selected
     handles.ROI.int_y = zeros(roi_number,2*handles.ROI.sx);
     handles.ROI.cm = com(handles.ROI.A_or,map_size(1),map_size(2));
     
+    % generate the big ROI map with gray outlines
+    figure('visible','off');imagesc(handles.ROI.Cn);colormap parula;truesize;hold on
+    set(gca,'xtick',[],'xticklabel',[],'ytick',[],'yticklabel',[],'box','off')
+    for ROI_number = 1:size(get(handles.ROI_list,'String'),1)
+        single_ROI = full(reshape(handles.ROI.A_or(:,ROI_number),map_size(1),map_size(2)));
+        single_ROI = medfilt2(single_ROI,[3,3]);
+        single_ROI = single_ROI(:);
+        [temp,ind] = sort(single_ROI(:).^2,'ascend');
+        temp =  cumsum(temp);
+        ff = find(temp > (1-0.95)*temp(end),1,'first');
+        if ~isempty(ff)
+            [~,ww] = contour(reshape(single_ROI,map_size(1),map_size(2)),[0,0]+single_ROI(ind(ff)),'LineColor','m');
+            ww.LineWidth = 2;
+        end
+    end
+    handles.ROI.ROImap = frame2im(getframe(gca));hold off
+    
     %------Calculate Baseline Stability - First vs Last-------
     frames = size(handles.ROI.F_raw,2); %calculate number of frames in data
     
@@ -516,9 +533,10 @@ if isfield(handles,'ROI')
     set(gca,'box','off')
     
     %Display Big Map
-    map_size = size(handles.ROI.Cn);
+    map_size = size(handles.ROI.ROImap);
     axes(handles.whole_field)
-    imagesc(handles.ROI.Cn);hold on
+    image(handles.ROI.ROImap);hold on
+    
     single_ROI = full(reshape(handles.ROI.A_or(:,ROI_number),map_size(1),map_size(2)));
     single_ROI = medfilt2(single_ROI,[3,3]);
     single_ROI = single_ROI(:);
@@ -562,7 +580,7 @@ if isfield(handles,'ROI')
         int_y(i,:) = int_y(i,:) - (int_y(i,end)-d2);
     end
     single_ROI = single_ROI(int_x(i,:),int_y(i,:));
-    imagesc(int_x(i,:),int_y(i,:),single_ROI);
+    imagesc(int_x(i,:),int_y(i,:),single_ROI);colormap parula
     
     set(gca,'xtick',[])
     set(gca,'xticklabel',[])
