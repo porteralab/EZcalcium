@@ -22,7 +22,7 @@ function varargout = ez_roi_refine(varargin)
 
 % Edit the above text to modify the response to help ez_roi_refine
 
-% Last Modified by GUIDE v2.5 25-Mar-2020 15:40:36
+% Last Modified by GUIDE v2.5 26-Mar-2020 13:54:49
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -60,6 +60,8 @@ guidata(hObject, handles);
 
 % UIWAIT makes ez_roi_refine wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
+
+set(handles.stop_button, 'Enable', 'off'); drawnow
 
 filepath = fileparts([mfilename('fullpath') '.m']);
 settings_file = fullfile(filepath,'ez_settings.mat');
@@ -100,7 +102,16 @@ function run_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+if ~isfield(handles,'ROI')
+    warning_text='No ROI data file has been loaded yet!';
+    msgbox(warning_text,'Warning');
+    return
+end
+
+set(hObject, 'UserData', false);
+
 set(handles.run, 'Enable', 'off'); drawnow
+set(handles.stop_button, 'Enable', 'on'); drawnow
 
 refine_roi = parse_refine_roi(handles); %read GUI
 
@@ -139,6 +150,12 @@ for ROI = 1:size(handles.ROI.F_raw,1)
     borderline_count = 0;
     set(handles.ROI_list,'Value',ROI); %reset selection bar to first ROI
     drawnow; %Update GUI
+    
+    % check for stop button press
+    stop_pressed = get(handles.run, 'UserData');
+    if ~isempty(stop_pressed) && stop_pressed
+        break;
+    end
     
     guidata(hObject,handles) %Update handles data
     view_ROI_function(hObject, eventdata, handles) %Load ROI
@@ -229,6 +246,7 @@ for ROI = 1:size(handles.ROI.F_raw,1)
 end
 
 set(handles.run, 'Enable', 'on'); drawnow
+set(handles.stop_button, 'Enable', 'off'); drawnow
 
 
 
@@ -2163,3 +2181,11 @@ switch eventdata.Key
     case 'downarrow'
         next_ROI_Callback(hObject, eventdata, handles)
 end
+
+
+% --- Executes on button press in stop_button.
+function stop_button_Callback(hObject, eventdata, handles)
+% hObject    handle to stop_button (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+set(handles.run, 'UserData', true);
