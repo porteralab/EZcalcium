@@ -2021,7 +2021,7 @@ function pushbutton28_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton28 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-msgbox("""dF/F Activity"" is used to only include ROIs that surpass a chosen activity threshold for a given number of consecutive frames. This threshold can be set in the ""Value"" box in units of dF/F, and the chosen number of consecutive frames can be set in the ""Frames"" box.","Help",'replace')
+msgbox("""Activity"" is used to only include ROIs that surpass a chosen activity threshold for a given number of consecutive frames. This threshold can be set in the ""Value"" box in units of Z-score, and the chosen number of consecutive frames can be set in the ""Frames"" box. A rule of thumb for this is above 3x Z-score for 0.5 second worth of frames.","Help",'replace')
 
 
 % --- Executes on button press in pushbutton29.
@@ -2037,7 +2037,7 @@ function pushbutton30_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton30 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-msgbox("""Roundness"" measures how similar an ROI is to a circle. This is useful when looking exclusively for neuron somata or other round ROIs.","Help",'replace')
+msgbox("""Roundness"" measures how similar an ROI is to a circle. Lower values indicate more round in shape. This is useful when looking exclusively for neuron somata or other round ROIs.","Help",'replace')
 
 
 % --- Executes on button press in pushbutton31.

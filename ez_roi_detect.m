@@ -1069,7 +1069,7 @@ function pushbutton24_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton24 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-msgbox("""Use Neuron Classifier"" uses correlation test and a CNN-based neuron classifier to exclude non-neuron ROIs.","Help",'replace')
+msgbox("""Use Neuron Classifier"" uses correlation test and a CNN-based neuron classifier to exclude non-neuron ROIs. Typically can be skipped if you are going to run ROI Refinement later.","Help",'replace')
 
 
 % --- Executes on button press in pushbutton25.
@@ -1077,7 +1077,7 @@ function pushbutton25_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton25 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-msgbox("""Display ROI Browser"" shows extracted raw fluorescence data, the inferred trace generated, and the ROI shape and location.","Help",'replace')
+msgbox("""Display ROI Browser"" shows extracted raw fluorescence data, the inferred trace generated, and the ROI shape and location. Typically can be skipped if you are going to run ROI Refinement later.","Help",'replace')
 
 
 % --- Executes on button press in pushbutton29.

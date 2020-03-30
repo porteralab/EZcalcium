@@ -630,7 +630,7 @@ function us_fac_help_Callback(hObject, eventdata, handles)
 % hObject    handle to us_fac_help (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-msgbox("""Upsampling Factor"" defines the upsampling factor for subpixel registration.","Help",'replace')
+msgbox("""Upsampling Factor"" defines the upsampling factor for subpixel registration. Higher values helps reducing the smearing effect while being slower. Usually no need to change.","Help",'replace')
 
 
 % --- Executes on button press in max_shift_help.
@@ -638,7 +638,7 @@ function max_shift_help_Callback(hObject, eventdata, handles)
 % hObject    handle to max_shift_help (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-msgbox("""Max Shift"" defines the maximum shift in pixels allowed in each direction.","Help",'replace')
+msgbox("""Max Shift"" defines the maximum shift in pixels allowed in each direction. Consider increase this value when there is large amplitude of motion.","Help",'replace')
 
 
 % --- Executes on button press in initial_batch_size_help.
@@ -646,7 +646,7 @@ function initial_batch_size_help_Callback(hObject, eventdata, handles)
 % hObject    handle to initial_batch_size_help (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-msgbox("""Initial Batch Size"" defines the number of frames from the beginning used for calculating the initial template.","Help",'replace')
+msgbox("""Initial Batch Size"" defines the number of frames from the beginning used for calculating the initial template. Change this to a lower value if you run into memory issues.","Help",'replace')
 
 
 % --- Executes on button press in bin_width_help.
@@ -654,7 +654,7 @@ function bin_width_help_Callback(hObject, eventdata, handles)
 % hObject    handle to bin_width_help (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-msgbox("""Bin Width"" defines the number of frames of each bin, over which the registered frames are averaged to update the template.","Help",'replace')
+msgbox("""Bin Width"" defines the number of frames of each bin, over which the registered frames are averaged to update the template. Change this to a lower value if you run into memory issues.","Help",'replace')
 
 
 % --- Executes on button press in settings_help.
