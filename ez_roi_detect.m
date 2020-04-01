@@ -265,6 +265,12 @@ function run_button_Callback(hObject, eventdata, handles)
 
 % This runs the roi detection
 
+if size(get(handles.to_process_list,'String'),2) == 0
+    warning_text='No file has been added yet!';
+    msgbox(warning_text,'Warning');
+    return
+end
+
 set(handles.run_button, 'Enable', 'off'); drawnow
 
 autoroi = parse_autoroi(handles,2); %read GUI
