@@ -336,6 +336,7 @@ if iscell(add_file)||ischar(add_file) %Checks to see if anything was selected
     guidata(hObject, handles); %Saves new handle so that it can be passed within the GUI
     
     if isfield(handles.ROI,'F_raw') %check to make sure data are compatible and raw data available
+        frames = size(handles.ROI.F_raw,2);
         roi_number=size(handles.ROI.F_raw,1); %Find longest length of data
     else
         warning_text='No ROI data are found in the selected file. Did you forget to run ROI Detection first?';
@@ -354,6 +355,13 @@ if iscell(add_file)||ischar(add_file) %Checks to see if anything was selected
     set(handles.ROI_list,'Value',1); %reset selection bar to 1
     
     set(handles.ROI_list,'String',handles.ROI.ROI_names); %Update the ROI list
+    
+    % check if baseline stability frame window is valid
+    input_baseline_stability_percent = str2double(get(handles.input_baseline_stability_percent,'string')) /100;
+    if frames * input_baseline_stability_percent ...
+            < str2double(get(handles.input_baseline_window,'string'))
+        set(handles.input_baseline_window,'String',floor(frames*input_baseline_stability_percent))
+    end
     
     drawnow
     
