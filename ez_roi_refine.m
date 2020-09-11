@@ -376,18 +376,21 @@ if iscell(add_file)||ischar(add_file) %Checks to see if anything was selected
     handles.ROI.int_y = zeros(roi_number,2*handles.ROI.sx);
     handles.ROI.cm = com(handles.ROI.A_or,map_size(1),map_size(2));
     
-    % generate the big ROI map with gray outlines
-    figure('visible','off');imagesc(handles.ROI.Cn);colormap parula;truesize;hold on
+    % generate the big ROI map with magenta outlines
+    whole_field_size = round(getpixelposition(handles.whole_field));
+    figure('visible','off');imagesc(imresize(handles.ROI.Cn,[whole_field_size(3),whole_field_size(4)],'nearest'));colormap parula;hold on
+    set(gca,'Units','pixels','Position',[0,0,whole_field_size(3),whole_field_size(4)]);
     set(gca,'xtick',[],'xticklabel',[],'ytick',[],'yticklabel',[],'box','off')
     for ROI_number = 1:size(get(handles.ROI_list,'String'),1)
         single_ROI = full(reshape(handles.ROI.A_or(:,ROI_number),map_size(1),map_size(2)));
+        single_ROI = imresize(single_ROI,[whole_field_size(3),whole_field_size(4)],'nearest');
         single_ROI = medfilt2(single_ROI,[3,3]);
         single_ROI = single_ROI(:);
         [temp,ind] = sort(single_ROI(:).^2,'ascend');
         temp =  cumsum(temp);
         ff = find(temp > (1-0.95)*temp(end),1,'first');
         if ~isempty(ff)
-            [~,ww] = contour(reshape(single_ROI,map_size(1),map_size(2)),[0,0]+single_ROI(ind(ff)),'LineColor','m');
+            [~,ww] = contour(reshape(single_ROI,whole_field_size(3),whole_field_size(4)),[0,0]+single_ROI(ind(ff)),'LineColor','m');
             ww.LineWidth = 2;
         end
     end
@@ -559,18 +562,20 @@ if isfield(handles,'ROI')
     set(gca,'box','off')
     
     %Display Big Map
-    map_size = size(handles.ROI.ROImap);
+    map_size = size(handles.ROI.Cn);
+    whole_field_size = round(getpixelposition(handles.whole_field));
     axes(handles.whole_field)
     image(handles.ROI.ROImap);hold on
     
     single_ROI = full(reshape(handles.ROI.A_or(:,ROI_number),map_size(1),map_size(2)));
+    single_ROI = imresize(single_ROI,[whole_field_size(3),whole_field_size(4)],'nearest');
     single_ROI = medfilt2(single_ROI,[3,3]);
     single_ROI = single_ROI(:);
     [temp,ind] = sort(single_ROI(:).^2,'ascend');
     temp =  cumsum(temp);
     ff = find(temp > (1-0.95)*temp(end),1,'first');
     if ~isempty(ff)
-        [~,ww] = contour(reshape(single_ROI,map_size(1),map_size(2)),[0,0]+single_ROI(ind(ff)),'LineColor','k');
+        [~,ww] = contour(reshape(single_ROI,whole_field_size(3),whole_field_size(4)),[0,0]+single_ROI(ind(ff)),'LineColor','k');
         ww.LineWidth = 2;
     end
     set(gca,'xtick',[])
