@@ -1032,6 +1032,7 @@ F_inferred_refined = handles.ROI.F_inferred(handles.ROI.included_ROIs,:); %Fitte
 F_raw_refined = handles.ROI.F_raw(handles.ROI.included_ROIs,:); %Raw data
 S_deconv_refined = handles.ROI.S_deconv(handles.ROI.included_ROIs,:); %Deconvolved data
 Z_mod_refined = handles.ROI.Z_mod(handles.ROI.included_ROIs,:); %Modified Z-score data
+Z_mod = handles.ROI.Z_mod;
 
 %CSV Export
 if csv_save
@@ -1055,9 +1056,9 @@ if mat_save
         if ismember('F_raw_refined',who('-file',filename_mat))
             msgbox(['It looks like file ' filename_mat ' already have saved ROI refinement data. Will improvise a different file name to avoid overwriting.'],'Warning')
             filename_mat = [handles.full_filepath(1:end-4) '_' datestr(now,30) '.mat'];
-            save(filename_mat,'spatial_comp_refined','F_inferred_refined','F_raw_refined','S_deconv_refined','Z_mod_refined','roi_refine_settings');
+            save(filename_mat,'spatial_comp_refined','F_inferred_refined','F_raw_refined','S_deconv_refined','Z_mod','Z_mod_refined','roi_refine_settings');
         else
-            save(filename_mat,'spatial_comp_refined','F_inferred_refined','F_raw_refined','S_deconv_refined','Z_mod_refined','-append');
+            save(filename_mat,'spatial_comp_refined','F_inferred_refined','F_raw_refined','S_deconv_refined','Z_mod','Z_mod_refined','-append');
         end
     end
 end
