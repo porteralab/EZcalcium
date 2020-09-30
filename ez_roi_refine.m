@@ -366,15 +366,15 @@ if iscell(add_file)||ischar(add_file) %Checks to see if anything was selected
     drawnow
     
     % pre-processing loaded data for displaying images
-    nA = full(sqrt(sum(handles.ROI.A_or.^2))');
-    [K,~] = size(handles.ROI.C_or);
-    handles.ROI.A_or = handles.ROI.A_or/spdiags(nA,0,K,K);
+    nA = full(sqrt(sum(handles.ROI.spatial_comp.^2))');
+    [K,~] = size(handles.ROI.F_raw);
+    handles.ROI.spatial_comp = handles.ROI.spatial_comp/spdiags(nA,0,K,K);
     
     map_size = size(handles.ROI.Cn);
     handles.ROI.sx = min([handles.ROI.options.sx,floor(map_size(1)/2),floor(map_size(2)/2)]);
     handles.ROI.int_x = zeros(roi_number,2*handles.ROI.sx);
     handles.ROI.int_y = zeros(roi_number,2*handles.ROI.sx);
-    handles.ROI.cm = com(handles.ROI.A_or,map_size(1),map_size(2));
+    handles.ROI.cm = com(handles.ROI.spatial_comp,map_size(1),map_size(2));
     
     % generate the big ROI map with magenta outlines
     whole_field_size = round(getpixelposition(handles.whole_field));
@@ -382,7 +382,7 @@ if iscell(add_file)||ischar(add_file) %Checks to see if anything was selected
     set(gca,'Units','pixels','Position',[0,0,whole_field_size(3),whole_field_size(4)]);
     set(gca,'xtick',[],'xticklabel',[],'ytick',[],'yticklabel',[],'box','off')
     for ROI_number = 1:size(get(handles.ROI_list,'String'),1)
-        single_ROI = full(reshape(handles.ROI.A_or(:,ROI_number),map_size(1),map_size(2)));
+        single_ROI = full(reshape(handles.ROI.spatial_comp(:,ROI_number),map_size(1),map_size(2)));
         single_ROI = imresize(single_ROI,[whole_field_size(3),whole_field_size(4)],'nearest');
         single_ROI = medfilt2(single_ROI,[3,3]);
         single_ROI = single_ROI(:);
@@ -445,7 +445,7 @@ if iscell(add_file)||ischar(add_file) %Checks to see if anything was selected
     handles.ROI.Oblong=zeros(size(handles.ROI.ROI_names,2),1);
     for ROI=1:roi_number
         %Binarize images
-        single_ROI=full(reshape(handles.ROI.A_or(:,ROI),map_size(1),map_size(2)));
+        single_ROI=full(reshape(handles.ROI.spatial_comp(:,ROI),map_size(1),map_size(2)));
         single_ROI=imbinarize(single_ROI,0);
         %Calculate image stats
         image_stats=regionprops(single_ROI,'Area','Perimeter','MajorAxisLength','MinorAxisLength'); %find image stats
@@ -567,7 +567,7 @@ if isfield(handles,'ROI')
     axes(handles.whole_field)
     image(handles.ROI.ROImap);hold on
     
-    single_ROI = full(reshape(handles.ROI.A_or(:,ROI_number),map_size(1),map_size(2)));
+    single_ROI = full(reshape(handles.ROI.spatial_comp(:,ROI_number),map_size(1),map_size(2)));
     single_ROI = imresize(single_ROI,[whole_field_size(3),whole_field_size(4)],'nearest');
     single_ROI = medfilt2(single_ROI,[3,3]);
     single_ROI = single_ROI(:);
@@ -587,7 +587,7 @@ if isfield(handles,'ROI')
     
     %Display Isolated ROI
     axes(handles.isolated_ROI);
-    single_ROI=reshape(handles.ROI.A_or(:,ROI_number),map_size(1),map_size(2));
+    single_ROI=reshape(handles.ROI.spatial_comp(:,ROI_number),map_size(1),map_size(2));
     i = ROI_number;
     int_x = handles.ROI.int_x;
     int_y = handles.ROI.int_y;
@@ -680,7 +680,7 @@ if isfield(handles,'ROI')
     if input_sat_style==2
         input_sat_value=str2double(get(handles.input_sat_value,'String'));
     else
-        input_sat_value=floor(str2double(get(handles.input_sat_value,'String'))/100*size(handles.ROI.C_or,2)); %Convert to number of frames
+        input_sat_value=floor(str2double(get(handles.input_sat_value,'String'))/100*size(handles.ROI.F_raw,2)); %Convert to number of frames
     end
     
     
@@ -1027,6 +1027,7 @@ for i = 1:size(ROI_list,1)
     end
 end
 
+spatial_comp_refined = handles.ROI.spatial_comp(:,handles.ROI.included_ROIs);
 F_inferred_refined = handles.ROI.F_inferred(handles.ROI.included_ROIs,:); %Fitted data
 F_raw_refined = handles.ROI.F_raw(handles.ROI.included_ROIs,:); %Raw data
 S_deconv_refined = handles.ROI.S_deconv(handles.ROI.included_ROIs,:); %Deconvolved data
@@ -1042,6 +1043,8 @@ if csv_save
     csvwrite(filename_refined,S_deconv_refined);
     filename_refined = [handles.full_filepath(1:end-4) '_refined_Zmod.csv'];
     csvwrite(filename_refined,Z_mod_refined);
+    filename_refined = [handles.full_filepath(1:end-4) '_refined_spatial.csv'];
+    csvwrite(filename_refined,spatial_comp_refined);
     % refined_filename = [handles.full_filepath(1:end-4) '_refined_centers.csv'];
     % csvwrite(refined_filename,ROI_centers);
 end
@@ -1052,9 +1055,9 @@ if mat_save
         if ismember('F_raw_refined',who('-file',filename_mat))
             msgbox(['It looks like file ' filename_mat ' already have saved ROI refinement data. Will improvise a different file name to avoid overwriting.'],'Warning')
             filename_mat = [handles.full_filepath(1:end-4) '_' datestr(now,30) '.mat'];
-            save(filename_mat,'F_inferred_refined','F_raw_refined','S_deconv_refined','Z_mod_refined','roi_refine_settings');
+            save(filename_mat,'spatial_comp_refined','F_inferred_refined','F_raw_refined','S_deconv_refined','Z_mod_refined','roi_refine_settings');
         else
-            save(filename_mat,'F_inferred_refined','F_raw_refined','S_deconv_refined','Z_mod_refined','-append');
+            save(filename_mat,'spatial_comp_refined','F_inferred_refined','F_raw_refined','S_deconv_refined','Z_mod_refined','-append');
         end
     end
 end
@@ -1066,7 +1069,7 @@ if xlsx_save
     xlswrite(filename_refined,F_inferred_refined,'Fit');
     xlswrite(filename_refined,S_deconv_refined,'Deconvolved');
     xlswrite(filename_refined,Z_mod_refined,'Z_mod');
-    % xlswrite(refined_filename,ROI_centers,'Centers');
+    xlswrite(filename_refined,spatial_comp_refined,'Spatial');
 end
 
 disp('Data exported successfully.')

@@ -409,11 +409,7 @@ for i = 1:file_num
     
     %===============================Plotting================================
     
-    [A_or,C_or,S_or,P_or] = order_ROIs(A2,C2,S2,P2); %Reorder ROIs
-    
-    % Calculate traces to be saved
-    [F_raw,F_inferred] = construct_traces(Yr,A_or,C_or,b2,f2,options);
-    S_deconv = S_or;
+    [A_or,C_or,S_or,~] = order_ROIs(A2,C2,S2,P2); %Reorder ROIs
     
     %------------ROI Map Plotting---------------
     if autoroi.check_contours
@@ -425,6 +421,11 @@ for i = 1:file_num
         plot_components_GUI(Yr,A_or,C_or,b2,f2,Cn,options); %Plot individual components
     end
     
+    % Calculate traces to be saved
+    [F_raw,F_inferred] = construct_traces(Yr,A_or,C_or,b2,f2,options);
+    S_deconv = S_or;
+    spatial_comp = A_or;
+    
     %------Save .mat file----
     roi_detect_settings = rmfield(autoroi,{'to_process_list','processed_list'}); %Prepare the settings variable to be saved.
     
@@ -433,12 +434,12 @@ for i = 1:file_num
         if ismember('F_raw',who('-file',filename_mat))
             msgbox(['It looks like file ' filename_mat ' already have saved ROI detection data. Will improvise a different file name to avoid overwriting.'],'Warning')
             filename_mat = [filename(1:end-4) '_' datestr(now,30) '.mat'];
-            save(filename_mat,'Cn','A_or','C_or','S_or','P_or','F_raw','F_inferred','S_deconv','options','roi_detect_settings');
+            save(filename_mat,'Cn','spatial_comp','F_raw','F_inferred','S_deconv','options','roi_detect_settings');
         else
-            save(filename_mat,'Cn','A_or','C_or','S_or','P_or','F_raw','F_inferred','S_deconv','options','roi_detect_settings','-append');
+            save(filename_mat,'Cn','spatial_comp','F_raw','F_inferred','S_deconv','options','roi_detect_settings','-append');
         end
     else
-        save(filename_mat,'Cn','A_or','C_or','S_or','P_or','F_raw','F_inferred','S_deconv','options','roi_detect_settings');
+        save(filename_mat,'Cn','spatial_comp','F_raw','F_inferred','S_deconv','options','roi_detect_settings');
     end
     
     %Update internal file list
