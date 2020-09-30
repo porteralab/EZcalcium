@@ -425,6 +425,12 @@ for i = 1:file_num
     [F_raw,F_inferred] = construct_traces(Yr,A_or,C_or,b2,f2,options);
     S_deconv = S_or;
     spatial_comp = A_or;
+    ROI_center = zeros(size(spatial_comp,2),2);
+    for cur_ROI = 1:size(spatial_comp,2)
+        single_ROI = full(reshape(spatial_comp(:,cur_ROI),size(Cn,1),size(Cn,2)));
+        s = regionprops(true(size(single_ROI)),single_ROI,'WeightedCentroid');
+        ROI_center(cur_ROI,:) = s.WeightedCentroid;
+    end
     
     %------Save .mat file----
     roi_detect_settings = rmfield(autoroi,{'to_process_list','processed_list'}); %Prepare the settings variable to be saved.
@@ -434,12 +440,12 @@ for i = 1:file_num
         if ismember('F_raw',who('-file',filename_mat))
             msgbox(['It looks like file ' filename_mat ' already have saved ROI detection data. Will improvise a different file name to avoid overwriting.'],'Warning')
             filename_mat = [filename(1:end-4) '_' datestr(now,30) '.mat'];
-            save(filename_mat,'Cn','spatial_comp','F_raw','F_inferred','S_deconv','options','roi_detect_settings');
+            save(filename_mat,'Cn','spatial_comp','F_raw','F_inferred','S_deconv','ROI_center','options','roi_detect_settings');
         else
-            save(filename_mat,'Cn','spatial_comp','F_raw','F_inferred','S_deconv','options','roi_detect_settings','-append');
+            save(filename_mat,'Cn','spatial_comp','F_raw','F_inferred','S_deconv','ROI_center','options','roi_detect_settings','-append');
         end
     else
-        save(filename_mat,'Cn','spatial_comp','F_raw','F_inferred','S_deconv','options','roi_detect_settings');
+        save(filename_mat,'Cn','spatial_comp','F_raw','F_inferred','S_deconv','ROI_center','options','roi_detect_settings');
     end
     
     %Update internal file list
