@@ -116,8 +116,8 @@ function add_button_Callback(hObject, eventdata, handles)
 
 motcor = parse_motcor(handles,2);
 
-supported_files = {'*.tif; *.tiff; *.avi;',...
-    'Supported Files (.tif, .tiff, .avi)';...
+supported_files = {'*.tif; *.tiff; *.avi; *.txt',...
+    'Supported Files (.tif, .tiff, .avi, .txt)';...
     '*.*','All Files'};
 
 [add_file,add_filepath] = uigetfile(supported_files,'Choose file(s) to be processed.','MultiSelect','on');
@@ -128,12 +128,28 @@ if iscell(add_file)||ischar(add_file) %Checks to see if anything was selected
     if ~iscell(add_file); add_file = cellstr(add_file); end
     
     %Check for repeats, if not, add to list
-    for i = 1:length(add_file)
+    i = 0;
+    while i < length(add_file)
+        i = i + 1;
         full_add_file = [add_filepath add_file{i}]; %update full names
         
         if sum(ismember(motcor.to_process_list,full_add_file)) > 0 %If repeats, warning_text update
             warning_text = ['File: ' add_file{i} ' is already on the list.'];
             msgbox(warning_text,'Warning');
+        elseif strcmp(full_add_file(end-3:end),'.txt')
+            fid = fopen(full_add_file);
+            while 1
+                tline = fgetl(fid);
+                if ~ischar(tline), break, end
+                if isfile(tline)
+                    [~,~,file_ext] = fileparts(tline);
+                    if strcmp(file_ext,'.tif') || strcmp(file_ext,'.tiff') || strcmp(file_ext,'.avi')
+                        [~,lfname,lfext] = fileparts(tline);
+                        add_file = horzcat(add_file,cellstr([lfname lfext]));
+                    end
+                end
+            end
+            fclose(fid);
         else
             motcor.to_process_list = vertcat(motcor.to_process_list,cellstr(full_add_file)); %Adds to list
             set(handles.to_process_list,'String',motcor.to_process_list); %Refresh list
