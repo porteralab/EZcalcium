@@ -22,7 +22,7 @@ function varargout = ez_roi_refine(varargin)
 
 % Edit the above text to modify the response to help ez_roi_refine
 
-% Last Modified by GUIDE v2.5 26-Mar-2020 13:54:49
+% Last Modified by GUIDE v2.5 16-Oct-2020 23:39:25
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -454,7 +454,7 @@ if iscell(add_file)||ischar(add_file) %Checks to see if anything was selected
         handles.ROI.MajorAxis(ROI)=image_stats.MajorAxisLength; %Major axis of ellipse
         handles.ROI.MinorAxis(ROI)=image_stats.MinorAxisLength; %Minor axis of ellipse
         handles.ROI.Perimeter(ROI)=image_stats.Perimeter; %Perimeter
-        handles.ROI.Roundness(ROI)=(handles.ROI.Perimeter(ROI).^ 2)./(4 * pi * handles.ROI.Area(ROI)); %Roundness
+        handles.ROI.Roundness(ROI)=(4 * pi * handles.ROI.Area(ROI))./(handles.ROI.Perimeter(ROI).^ 2); %Roundness
         handles.ROI.Width(ROI)=mean([handles.ROI.MajorAxis(ROI) handles.ROI.MinorAxis(ROI)],2); %ROI mean width
         handles.ROI.Oblong(ROI)=handles.ROI.MajorAxis(ROI)/handles.ROI.MinorAxis(ROI);
     end
@@ -769,10 +769,10 @@ if isfield(handles,'ROI')
         set(handles.ROI_baseline_stability,'ForegroundColor','white');
     end
     
-    if handles.ROI.Roundness(ROI_number)<=input_roundness
+    if handles.ROI.Roundness(ROI_number)>=input_roundness
         set(handles.ROI_roundness,'BackgroundColor','white');
         set(handles.ROI_roundness,'ForegroundColor','black');
-    elseif handles.ROI.Roundness(ROI_number)<=border_roundness
+    elseif handles.ROI.Roundness(ROI_number)>=border_roundness
         set(handles.ROI_roundness,'BackgroundColor','yellow');
         set(handles.ROI_roundness,'ForegroundColor','black');
     else
