@@ -17,7 +17,7 @@ Step-by-step instructions for using each modules can be found on the [EZcalcium 
 
 The amount of required available system memory depends on the size of the data being processed. Ideally, the amount of total system memory should be at least 3x of the size of a single raw, uncompressed data file. CPU requirements are minimal, but processing speed is vastly improved with multiple cores. The toolbox also runs faster when the data to be analyzed is stored on a solid-state drive, since large amounts of data must be read and, in the case of Motion Correction, written.
 
-We recommend 64-bit MATLAB R2018a (version 9.4) or newer on Windows or macOS for using the EZcalcium. The following MATLAB toolboxes are required:
+We recommend 64-bit MATLAB R2020b (version 9.9) or newer on Windows or macOS for using the EZcalcium. The following MATLAB toolboxes are required:
 
 * Image Processing (required by **Motion Correction**, **ROI Detection** and **ROI Refinement**)
 * Parallel Computing (required by **Motion Correction** and **ROI Detection**)
