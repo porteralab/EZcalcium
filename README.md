@@ -1,3 +1,5 @@
+[![View EZcalcium on File Exchange](https://www.mathworks.com/matlabcentral/images/matlab-file-exchange.svg)](https://www.mathworks.com/matlabcentral/fileexchange/109840-ezcalcium)
+
 # EZcalcium
 Calcium imaging analysis made easy. EZcalcium is a flexible, user-friendly toolbox for analysis of calcium imaging data, controlled by a set of intuitive graphical user interfaces (GUI) based on MATLAB.
 
